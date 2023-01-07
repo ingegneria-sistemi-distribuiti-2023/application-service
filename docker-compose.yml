@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  application_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # depends_on: # TODO: this will not be managed by docker-compose if db and service are in different stacks
+    #   session_db:
+    #     condition: service_healthy
+    image: application-service:latest
+    restart: always
+    ports:
+      - 8084:8084
+#    environment:
+#      JDBC_DATABASE_URL: jdbc:mysql://session_db:3306/sessiondb?allowPublicKeyRetrieval=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+#      JDBC_DATABASE_PASSWORD: admin
+#      JDBC_DATABASE_USERNAME: admin
+    networks:
+      - application-network
+    volumes:
+      - maven_packages:/root/.m2
+networks: 
+  session-network:
+    name: application-network
+volumes:
+  maven_packages:
+    name: maven_packages
