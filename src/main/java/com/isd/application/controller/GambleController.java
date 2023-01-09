@@ -1,8 +1,10 @@
 package com.isd.application.controller;
 
 
-import com.isd.application.dto.BetDTO;
-import com.isd.application.dto.MatchDTO;
+import com.isd.application.dto.AddMatchDTO;
+import com.isd.application.dto.PlaceBetDTO;
+import com.isd.application.dto.RemoveMatchDTO;
+
 import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +14,7 @@ public class GambleController {
     // TODO: All implementations and DTOs
 
     @PostMapping(path="/add")
-    public @ResponseBody String create(@RequestBody MatchDTO body) throws Exception {
+    public @ResponseBody String create(@RequestBody AddMatchDTO body) throws Exception {
         String toRet = null;
 
         try {
@@ -25,8 +27,8 @@ public class GambleController {
         return toRet;
     }
 
-    @PostMapping(path="/delete")
-    public @ResponseBody String del(@NotNull @RequestParam MatchDTO match) throws Exception {
+    @PostMapping(path="/remove")
+    public @ResponseBody String del(@NotNull @RequestParam RemoveMatchDTO match) throws Exception {
         String toRet = null;
 
         try {
@@ -38,8 +40,8 @@ public class GambleController {
         return toRet;
     }
 
-    @PostMapping(path="/bet")
-    public @ResponseBody String recharge(@NotNull @RequestBody BetDTO body) throws Exception {
+    @PostMapping(path="/place-bet")
+    public @ResponseBody String recharge(@NotNull @RequestBody PlaceBetDTO body) throws Exception {
         String toRet = null;
 
         try {
