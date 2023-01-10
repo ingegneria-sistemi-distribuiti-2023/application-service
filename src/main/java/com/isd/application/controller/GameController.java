@@ -1,6 +1,7 @@
 package com.isd.application.controller;
 
 import com.isd.application.dto.MatchDTO;
+import com.isd.application.dto.TeamHistoryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,10 +26,10 @@ public class GameController {
     String gameServiceUrl;
 
     @GetMapping(value="/")
-    public ResponseEntity<List<MatchDTO>> getAllGames() throws Exception{
+    public ResponseEntity<List<MatchDTO>> getAllMatches() throws Exception{
         try {
             ResponseEntity<List<MatchDTO>> response = restTemplate.exchange(
-                    gameServiceUrl + "/match/all", HttpMethod.GET, null,
+                    gameServiceUrl + "/match/", HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<MatchDTO>>() {});
 
             // verify status code of request
@@ -45,14 +46,41 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public void getGameDetails(@PathVariable("id") String gameId){
+    public ResponseEntity<MatchDTO> getMatchDetails(@PathVariable("id") String gameId){
+        try {
+            ResponseEntity<MatchDTO> response = restTemplate.exchange(
+                    gameServiceUrl + "/match/" + gameId, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<MatchDTO>() {});
 
+            // verify status code of request
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return ResponseEntity.ok(response.getBody());
+            } else {
+                // handle errors or timeout here
+                return ResponseEntity.status(response.getStatusCode()).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 
-    @GetMapping("/team/{name}")
-    public void getHistoryOfTeam(
-            @PathVariable("name") String teamName){
+    @GetMapping("/team/{id}")
+    public ResponseEntity<TeamHistoryDTO> getHistoryOfTeam(@PathVariable("id") Integer teamId){
+        try {
+            ResponseEntity<TeamHistoryDTO> response = restTemplate.exchange(
+                    gameServiceUrl + "/game/team/" + teamId, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<TeamHistoryDTO>() {});
 
+            // verify status code of request
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return ResponseEntity.ok(response.getBody());
+            } else {
+                // handle errors or timeout here
+                return ResponseEntity.status(response.getStatusCode()).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
