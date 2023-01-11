@@ -2,11 +2,17 @@ package com.isd.application.dto;
 
 import com.isd.application.commons.OutcomeEnum;
 
-public class GameDTO {
+import java.io.Serializable;
+
+public class GameDTO implements Serializable{
+    private static final long serialVersionUID = 6529685064657757690L;
     private int gameId;
     private OutcomeEnum outcome;
     private double quoteAtTimeOfBet;
     private long ts;
+
+    public GameDTO() {
+    }
 
     public GameDTO(int gameId, OutcomeEnum outcome, double quoteAtTimeOfBet, long ts) {
         this.gameId = gameId;

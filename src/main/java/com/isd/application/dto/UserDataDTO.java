@@ -1,38 +1,22 @@
 package com.isd.application.dto;
-// this class is a mapping for the following JSON:
-/*
-  "user_data": {
-        "userId": 1,
-        "list_of_bets": [
-            {
-                "betValue": 10,
-                "currency": "EUR",
-                "games": [
-                    // … list of games {gameId, outcome, quoteAtTimeOfBet} …
-                    {
-                        "gameId": 1,
-                        "outcome": "1", // TODO: creare enum per gli outcome (1, X, 2)
-                        "quoteAtTimeOfBet": 1.73,
-                        "ts": 18928932
-                    }
-                ],
-                "ts": 18928932
-            }
-        ]
-    },
- */
+
+import java.io.Serializable;
 import java.util.List;
 
-public class UserDataDTO {
-    private int userId;
+public class UserDataDTO implements Serializable {
+    private static final long serialVersionUID = 6529685099997757690L;
+    private Integer userId;
     private List<BetDTO> listOfBets;
 
+    public UserDataDTO() {
+    }
+
     // getters and setters
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 

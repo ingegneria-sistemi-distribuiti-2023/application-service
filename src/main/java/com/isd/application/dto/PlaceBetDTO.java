@@ -18,6 +18,9 @@ public class PlaceBetDTO {
     private int betValue;
     private CurrencyEnum currency;
 
+    public PlaceBetDTO() {
+    }
+
     public PlaceBetDTO(int userId, long betId, int betValue, CurrencyEnum currency) {
         this.userId = userId;
         this.betId = betId;

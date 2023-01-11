@@ -14,6 +14,9 @@ public class RemoveMatchDTO {
     private int gameId;
     private long betId;
 
+    public RemoveMatchDTO() {
+    }
+
     public RemoveMatchDTO(int userId, int gameId, long betId) {
         this.userId = userId;
         this.gameId = gameId;

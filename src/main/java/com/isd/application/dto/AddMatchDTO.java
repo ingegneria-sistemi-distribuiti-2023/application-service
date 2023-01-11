@@ -17,9 +17,12 @@ public class AddMatchDTO {
     private int gameId;
     private double quote;
     private OutcomeEnum outcome;
-    private long betId;
+    private Long betId;
 
-    public AddMatchDTO(int userId, int gameId, double quote, OutcomeEnum outcome, long betId) {
+    public AddMatchDTO() {
+    }
+
+    public AddMatchDTO(int userId, int gameId, double quote, OutcomeEnum outcome, Long betId) {
         this.userId = userId;
         this.gameId = gameId;
         this.quote = quote;
@@ -60,11 +63,11 @@ public class AddMatchDTO {
     }
 
     
-    public long getBetId() {
+    public Long getBetId() {
         return betId;
     }
     
-    public void setBetId(long betId) {
+    public void setBetId(Long betId) {
         this.betId = betId;
     }
 
