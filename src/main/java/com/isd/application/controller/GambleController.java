@@ -37,9 +37,9 @@ public class GambleController {
         throw new IllegalArgumentException(status.toString());
     }
 
-    private UserDataDTO getCurrentUserData(String sessionId) {
+    private UserDataDTO getCurrentUserData(Integer userId) {
         ResponseEntity<UserDataDTO> userDataRequest = restTemplate.exchange(
-                sessionServiceUrl + "/api/sessions/" + sessionId, HttpMethod.GET, null,
+                sessionServiceUrl + "/api/sessions/" + userId.toString(), HttpMethod.GET, null,
                 new ParameterizedTypeReference<UserDataDTO>() {});
         if (userDataRequest.getStatusCode() != HttpStatus.OK) {
             handleError(userDataRequest.getStatusCode(), "Error on /api/sessions/");
@@ -57,10 +57,9 @@ public class GambleController {
         return matchRequest.getBody();
     }
 
-    private UserDataDTO updateUserData(UserDataDTO userData, String sessionId) {
+    private UserDataDTO updateUserData(UserDataDTO userData) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Session-Id", sessionId);
 
         HttpEntity<UserDataDTO> request = new HttpEntity<>(userData, headers);
 
@@ -77,13 +76,13 @@ public class GambleController {
 
     @PostMapping(path="/add")
     // TODO: Eliminare Session-Id dagli headers in quanto si occuperà automaticamente session-service di prendere la sessione dal database
-    public @ResponseBody ResponseEntity<UserDataDTO> create(@RequestHeader(value = "Session-Id", required = false) String sessionId, @RequestBody AddMatchDTO body) throws Exception {
+    public @ResponseBody ResponseEntity<UserDataDTO> create(@RequestBody AddMatchDTO body) throws Exception {
         ResponseEntity<UserDataDTO> toRet = null;
 
         try {
             // prendo la sessione attuale
 
-            UserDataDTO currentUserData = getCurrentUserData(sessionId);
+            UserDataDTO currentUserData = getCurrentUserData(body.getUserId());
 
             Integer gameId = body.getGameId();
             Long betId = body.getBetId();
@@ -128,7 +127,7 @@ public class GambleController {
                 }
 
                 currentUserData.addBet(newBet);
-                currentUserData = updateUserData(currentUserData, sessionId);
+                currentUserData = updateUserData(currentUserData);
 
             } else {
                 // aggiungi il match, se non è già presente in 'List<MatchGambledDTO> games' con relativa quota ed outcome dato l'id della schedina (betId)
@@ -160,7 +159,7 @@ public class GambleController {
                 selectedBet.getGames().add(newGamble);
                 currentUserData.addBet(selectedBet);
 
-                currentUserData = updateUserData(currentUserData, sessionId);
+                currentUserData = updateUserData(currentUserData);
 
             }
 
@@ -174,12 +173,12 @@ public class GambleController {
     }
 
     @PostMapping(path="/remove")
-    public @ResponseBody UserDataDTO del(@RequestHeader(value = "Session-Id", required = false) String sessionId, @NotNull @RequestBody RemoveMatchDTO body) throws Exception {
+    public @ResponseBody UserDataDTO del(@NotNull @RequestBody RemoveMatchDTO body) throws Exception {
         UserDataDTO toRet = null;
 
         try {
             // prendo la sessione attuale
-            UserDataDTO currentUserData = getCurrentUserData(sessionId);
+            UserDataDTO currentUserData = getCurrentUserData(body.getUserId());
 
             Integer matchId = body.getGameId();
             Long betId = body.getBetId();
@@ -204,7 +203,7 @@ public class GambleController {
                 currentUserData.setListOfBets(new LinkedList<>());
             }
 
-            toRet = updateUserData(currentUserData, sessionId);
+            toRet = updateUserData(currentUserData);
 
         } catch (Error e){
             handleError(HttpStatus.NOT_FOUND, e.getMessage());

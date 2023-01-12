@@ -13,3 +13,7 @@ auth:
 game:
   service:
     url: "http://localhost:8081"
+
+session:
+  service:
+    url: "http://localhost:8084"
