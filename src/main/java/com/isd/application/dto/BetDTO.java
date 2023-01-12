@@ -97,6 +97,15 @@ public class BetDTO implements Serializable{
         return result;
     }
 
+    public MatchGambledDTO getMatchByMatchId(Integer gameId) throws Exception{
+        for (MatchGambledDTO game: getGames()){
+            if (game.getGameId() == gameId){
+                return game;
+            }
+        }
+        return null;
+    }
+
     public void addMatch(MatchGambledDTO gamble) throws Exception {
         // Check if the number of bets in the list is less than or equal to 3
         if (games.size() <= MAX_MATCH) {
