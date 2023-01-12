@@ -15,17 +15,15 @@ import com.isd.application.commons.OutcomeEnum;
 public class AddMatchDTO {
     private int userId;
     private int gameId;
-    private double quote;
     private OutcomeEnum outcome;
     private Long betId;
 
     public AddMatchDTO() {
     }
 
-    public AddMatchDTO(int userId, int gameId, double quote, OutcomeEnum outcome, Long betId) {
+    public AddMatchDTO(int userId, int gameId, OutcomeEnum outcome, Long betId) {
         this.userId = userId;
         this.gameId = gameId;
-        this.quote = quote;
         this.outcome = outcome;
         this.betId = betId;
     }
@@ -46,14 +44,6 @@ public class AddMatchDTO {
         this.gameId = gameId;
     }
 
-    public double getQuote() {
-        return quote;
-    }
-
-    public void setQuote(double quote) {
-        this.quote = quote;
-    }
-
     public OutcomeEnum getOutcome() {
         return outcome;
     }
@@ -62,7 +52,6 @@ public class AddMatchDTO {
         this.outcome = outcome;
     }
 
-    
     public Long getBetId() {
         return betId;
     }
@@ -77,7 +66,6 @@ public class AddMatchDTO {
         return "AddMatchDTO{" +
                 "userId=" + userId +
                 ", gameId=" + gameId +
-                ", quote=" + quote +
                 ", outcome=" + outcome +
                 ", betId=" + betId +
                 '}';
@@ -93,7 +81,6 @@ public class AddMatchDTO {
 
         if (userId != that.userId) return false;
         if (gameId != that.gameId) return false;
-        if (Double.compare(that.quote, quote) != 0) return false;
         if (betId != that.betId) return false;
         return outcome == that.outcome;
     }

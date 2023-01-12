@@ -1,19 +1,22 @@
 package com.isd.application.controller;
 
 
+import com.isd.application.commons.CurrencyEnum;
 import com.isd.application.dto.*;
 
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.isd.application.commons.MatchStatus.FINISHED;
+import static com.isd.application.commons.MatchStatus.PLAYING;
 
 @RestController
 @RequestMapping("/app/gamble")
@@ -25,28 +28,98 @@ public class GambleController {
     @Value("${session.service.url}")
     String sessionServiceUrl;
 
-    private static final int MAX_BET = 3;
+    @Value("${game.service.url}")
+    String gameServiceUrl;
 
     @PostMapping(path="/add")
-    public @ResponseBody ResponseEntity<UserDataDTO> create(@RequestBody AddMatchDTO body) throws Exception {
+    public @ResponseBody ResponseEntity<UserDataDTO> create(@RequestHeader(value = "Session-Id", required = false) String sessionId, @RequestBody AddMatchDTO body) throws Exception {
         ResponseEntity<UserDataDTO> toRet = null;
         // TODO: prendi l'API corretta
-        String sessionId = "250c52bf-8931-44e4-9b73-a347fc2ecc7f";
+//        String sessionId = "250c52bf-8931-44e4-9b73-a347fc2ecc7f";
 
         try {
             // prendo la sessione attuale
-            ResponseEntity<UserDataDTO> request = restTemplate.exchange(
+            ResponseEntity<UserDataDTO> userDataRequest = restTemplate.exchange(
                     sessionServiceUrl + "/api/sessions/" + sessionId, HttpMethod.GET, null,
                     new ParameterizedTypeReference<UserDataDTO>() {});
             // verify status code of request
-
-            if (request.getStatusCode() != HttpStatus.OK) {
-                return ResponseEntity.status(request.getStatusCode()).build();
+            if (userDataRequest.getStatusCode() != HttpStatus.OK) {
+                return ResponseEntity.status(userDataRequest.getStatusCode()).build();
             }
 
-            UserDataDTO userData = request.getBody();
+            UserDataDTO currentUserData = userDataRequest.getBody();
 
-            toRet = ResponseEntity.ok(request.getBody());
+            // if (userId == null) // TODO: gestisci creazione di una nuova sessione
+
+            Integer gameId = body.getGameId();
+
+            // chiamo il game-service per verificare che esista il match
+            ResponseEntity<MatchDTO> matchRequest = restTemplate.exchange(
+                    gameServiceUrl + "/match/" + gameId, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<MatchDTO>() {});
+
+            if (matchRequest.getStatusCode() != HttpStatus.OK) {
+                return ResponseEntity.status(matchRequest.getStatusCode()).build();
+            }
+
+            // ho il dato relativo al match che si vuole giocare
+            MatchDTO currentMatch = matchRequest.getBody();
+
+            if (currentMatch.getStatus().equals(FINISHED) ){ // || currentMatch.getStatus().equals(PLAYING)){
+                throw new Exception("Too late!");
+            }
+
+            // se betId non è presente crei una nuova schedina
+            if (body.getBetId() == null){
+                // inizializzo la scommessa
+                BetDTO newBet = new BetDTO();
+                newBet.setTs(System.currentTimeMillis());
+                // inizializzo una nuova lista di partite
+                List<MatchGambledDTO> gambledMatches = new ArrayList<>();
+
+                // creo la nuova "bet"
+
+                MatchGambledDTO gamble = new MatchGambledDTO();
+                gamble.setGameId(gameId);
+
+                // TODO: inserire un controllo per scegliere la variabile da inserire
+                gamble.setQuoteAtTimeOfBet(currentMatch.getAwayWinPayout());
+
+                gamble.setOutcome(body.getOutcome());
+                gamble.setTs(System.currentTimeMillis());
+
+                gambledMatches.add(gamble);
+
+                // FIXME:
+                newBet.setBetValue(10);
+                newBet.setCurrency(CurrencyEnum.EUR);
+                newBet.setGames(gambledMatches);
+
+                currentUserData.addBet(newBet);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set("Session-Id", sessionId);
+
+                HttpEntity<UserDataDTO> request = new HttpEntity<>(currentUserData, headers);
+
+                // aggiorno la sessione esistente contattando il game service
+                ResponseEntity<UserDataDTO> savedUserDataRequest = restTemplate.exchange(
+                        sessionServiceUrl + "/api/sessions/", HttpMethod.POST, request,
+                        new ParameterizedTypeReference<UserDataDTO>() {});
+                // verify status code of request
+                if (savedUserDataRequest.getStatusCode() != HttpStatus.OK) {
+                    return ResponseEntity.status(savedUserDataRequest.getStatusCode()).build();
+                }
+
+                // FIXME: trova sol più elegante
+                currentUserData = savedUserDataRequest.getBody();
+
+            } else {
+                // aggiungi il match, se non è già presente in 'List<MatchGambledDTO> games' con relativa quota ed outcome dato l'id della schedina (betId)
+                throw new Exception("Not handled yet");
+
+            }
 
 //            if (body.getBetId() == null){
 //                // crea una nuova sessione
@@ -75,7 +148,8 @@ public class GambleController {
 
             // ritorna UserData aggiornata
 
-            return ResponseEntity.ok(request.getBody());
+            toRet = ResponseEntity.ok(currentUserData);
+
         } catch (Error e){
             new Exception(e.getMessage());
         }

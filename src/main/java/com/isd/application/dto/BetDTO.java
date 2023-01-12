@@ -9,13 +9,13 @@ public class BetDTO implements Serializable{
     private static final long serialVersionUID = 6529665465167757690L;
     private int betValue;
     private CurrencyEnum currency;
-    private List<GameDTO> games;
+    private List<MatchGambledDTO> games;
     private long ts;
 
     public BetDTO() {
     }
 
-    public BetDTO(int betValue, CurrencyEnum currency, List<GameDTO> games, long ts) {
+    public BetDTO(int betValue, CurrencyEnum currency, List<MatchGambledDTO> games, long ts) {
         this.betValue = betValue;
         this.currency = currency;
         this.games = games;
@@ -40,12 +40,12 @@ public class BetDTO implements Serializable{
         this.currency = currency;
     }
 
-    public List<GameDTO> getGames() {
+    public List<MatchGambledDTO> getGames() {
         return games;
     }
 
     //set games
-    public void setGames(List<GameDTO> games) {
+    public void setGames(List<MatchGambledDTO> games) {
         this.games = games;
     }
 
