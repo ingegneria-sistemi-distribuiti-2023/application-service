@@ -1,9 +1,9 @@
 package com.isd.application.dto;
 
-import com.isd.application.commons.CurrencyEnum;
-
 import java.io.Serializable;
 import java.util.List;
+
+import com.isd.application.commons.CurrencyEnum;
 
 public class BetDTO implements Serializable{
     private static final long serialVersionUID = 6529665465167757690L;
@@ -81,5 +81,18 @@ public class BetDTO implements Serializable{
         if (ts != betDTO.ts) return false;
         if (currency != null ? !currency.equals(betDTO.currency) : betDTO.currency != null) return false;
         return games != null ? games.equals(betDTO.games) : betDTO.games == null;
+    }
+
+    // hashCode override
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = betValue;
+        result = 31 * result + (currency != null ? currency.hashCode() : 0);
+        result = 31 * result + (games != null ? games.hashCode() : 0);
+        temp = Double.doubleToLongBits(ts);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

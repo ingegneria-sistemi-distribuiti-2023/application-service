@@ -1,10 +1,9 @@
 package com.isd.application.dto;
 
-import com.isd.application.commons.OutcomeEnum;
-
 import java.io.Serializable;
 
-// era gameDTO faceva confondere
+import com.isd.application.commons.OutcomeEnum;
+
 public class MatchGambledDTO implements Serializable{
     private static final long serialVersionUID = 6529685064657757690L;
     private int gameId;
@@ -38,22 +37,6 @@ public class MatchGambledDTO implements Serializable{
         return ts;
     }
 
-    public void setGameId(int gameId) {
-        this.gameId = gameId;
-    }
-
-    public void setOutcome(OutcomeEnum outcome) {
-        this.outcome = outcome;
-    }
-
-    public void setQuoteAtTimeOfBet(double quoteAtTimeOfBet) {
-        this.quoteAtTimeOfBet = quoteAtTimeOfBet;
-    }
-
-    public void setTs(long ts) {
-        this.ts = ts;
-    }
-
     // toString override
     @Override
     public String toString() {
@@ -77,5 +60,18 @@ public class MatchGambledDTO implements Serializable{
         if (Double.compare(gameDTO.quoteAtTimeOfBet, quoteAtTimeOfBet) != 0) return false;
         if (ts != gameDTO.ts) return false;
         return outcome == gameDTO.outcome;
+    }
+
+    // hashCode override
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = gameId;
+        result = 31 * result + (outcome != null ? outcome.hashCode() : 0);
+        temp = Double.doubleToLongBits(quoteAtTimeOfBet);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (int) (ts ^ (ts >>> 32));
+        return result;
     }
 }
