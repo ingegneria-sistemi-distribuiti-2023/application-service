@@ -1,6 +1,7 @@
 package com.isd.application.dto;
 
 import com.isd.application.commons.MatchStatus;
+import com.isd.application.commons.OutcomeEnum;
 
 import java.util.Date;
 
@@ -151,6 +152,19 @@ public class MatchDTO {
 
     public void setStatus(MatchStatus status) {
         this.status = status;
+    }
+
+    public Double getPayout(OutcomeEnum outcome){
+        switch (outcome) {
+            case DRAW:
+                return getDrawPayout();
+            case AWAY:
+                return getAwayWinPayout();
+            case HOME:
+                return getHomeWinPayout();
+            default:
+                throw new IllegalArgumentException("Invalid outcome: " + outcome);
+        }
     }
 
     @Override

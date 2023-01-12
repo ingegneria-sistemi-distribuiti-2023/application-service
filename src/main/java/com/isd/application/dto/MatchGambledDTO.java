@@ -37,6 +37,22 @@ public class MatchGambledDTO implements Serializable{
         return ts;
     }
 
+    public void setGameId(int gameId) {
+        this.gameId = gameId;
+    }
+
+    public void setOutcome(OutcomeEnum outcome) {
+        this.outcome = outcome;
+    }
+
+    public void setQuoteAtTimeOfBet(double quoteAtTimeOfBet) {
+        this.quoteAtTimeOfBet = quoteAtTimeOfBet;
+    }
+
+    public void setTs(long ts) {
+        this.ts = ts;
+    }
+
     // toString override
     @Override
     public String toString() {

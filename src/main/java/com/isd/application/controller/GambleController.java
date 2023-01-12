@@ -2,6 +2,7 @@ package com.isd.application.controller;
 
 
 import com.isd.application.commons.CurrencyEnum;
+import com.isd.application.commons.OutcomeEnum;
 import com.isd.application.dto.*;
 
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.isd.application.commons.MatchStatus.FINISHED;
@@ -32,10 +34,9 @@ public class GambleController {
     String gameServiceUrl;
 
     @PostMapping(path="/add")
+    // TODO: Eliminare Session-Id dagli headers in quanto si occuperà automaticamente session-service di prendere la sessione dal database
     public @ResponseBody ResponseEntity<UserDataDTO> create(@RequestHeader(value = "Session-Id", required = false) String sessionId, @RequestBody AddMatchDTO body) throws Exception {
         ResponseEntity<UserDataDTO> toRet = null;
-        // TODO: prendi l'API corretta
-//        String sessionId = "250c52bf-8931-44e4-9b73-a347fc2ecc7f";
 
         try {
             // prendo la sessione attuale
@@ -49,9 +50,9 @@ public class GambleController {
 
             UserDataDTO currentUserData = userDataRequest.getBody();
 
-            // if (userId == null) // TODO: gestisci creazione di una nuova sessione
-
             Integer gameId = body.getGameId();
+            Long betId = body.getBetId();
+            OutcomeEnum outcome = body.getOutcome();
 
             // chiamo il game-service per verificare che esista il match
             ResponseEntity<MatchDTO> matchRequest = restTemplate.exchange(
@@ -69,13 +70,17 @@ public class GambleController {
                 throw new Exception("Too late!");
             }
 
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Session-Id", sessionId);
+
             // se betId non è presente crei una nuova schedina
-            if (body.getBetId() == null){
+            if (betId == null){
                 // inizializzo la scommessa
                 BetDTO newBet = new BetDTO();
                 newBet.setTs(System.currentTimeMillis());
                 // inizializzo una nuova lista di partite
-                List<MatchGambledDTO> gambledMatches = new ArrayList<>();
+                List<MatchGambledDTO> gambledMatches = new LinkedList<>();
 
                 // creo la nuova "bet"
 
@@ -95,58 +100,87 @@ public class GambleController {
                 newBet.setCurrency(CurrencyEnum.EUR);
                 newBet.setGames(gambledMatches);
 
-                currentUserData.addBet(newBet);
+                // TODO: refactoring
+                // l'utente non ha una sessione e di conseguenza va istanziata
+                if (currentUserData == null){
+                    currentUserData = new UserDataDTO();
+                    currentUserData.setUserId(body.getUserId());
+                    currentUserData.setListOfBets(new LinkedList<>());
+                    currentUserData.addBet(newBet);
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.set("Session-Id", sessionId);
+                    HttpEntity<UserDataDTO> request = new HttpEntity<>(currentUserData);
 
-                HttpEntity<UserDataDTO> request = new HttpEntity<>(currentUserData, headers);
+                    // aggiorno la sessione esistente contattando il game service
+                    ResponseEntity<UserDataDTO> newUserDataRequest = restTemplate.exchange(
+                            sessionServiceUrl + "/api/sessions/", HttpMethod.POST, request,
+                            new ParameterizedTypeReference<UserDataDTO>() {});
+                    // verify status code of request
+                    if (newUserDataRequest.getStatusCode() != HttpStatus.OK) {
+                        return ResponseEntity.status(newUserDataRequest.getStatusCode()).build();
+                    }
+                    currentUserData = newUserDataRequest.getBody();
 
-                // aggiorno la sessione esistente contattando il game service
-                ResponseEntity<UserDataDTO> savedUserDataRequest = restTemplate.exchange(
-                        sessionServiceUrl + "/api/sessions/", HttpMethod.POST, request,
-                        new ParameterizedTypeReference<UserDataDTO>() {});
-                // verify status code of request
-                if (savedUserDataRequest.getStatusCode() != HttpStatus.OK) {
-                    return ResponseEntity.status(savedUserDataRequest.getStatusCode()).build();
+                } else {
+                    // aggiorna la sessione esistente
+                    currentUserData.addBet(newBet);
+
+                    HttpEntity<UserDataDTO> request = new HttpEntity<>(currentUserData, headers);
+
+                    // aggiorno la sessione esistente contattando il game service
+                    ResponseEntity<UserDataDTO> savedUserDataRequest = restTemplate.exchange(
+                            sessionServiceUrl + "/api/sessions/", HttpMethod.POST, request,
+                            new ParameterizedTypeReference<UserDataDTO>() {});
+                    // verify status code of request
+                    if (savedUserDataRequest.getStatusCode() != HttpStatus.OK) {
+                        return ResponseEntity.status(savedUserDataRequest.getStatusCode()).build();
+                    }
+                    currentUserData = savedUserDataRequest.getBody();
                 }
-
-                // FIXME: trova sol più elegante
-                currentUserData = savedUserDataRequest.getBody();
 
             } else {
                 // aggiungi il match, se non è già presente in 'List<MatchGambledDTO> games' con relativa quota ed outcome dato l'id della schedina (betId)
-                throw new Exception("Not handled yet");
+
+                List<BetDTO> currentBets = currentUserData.getListOfBets();
+                BetDTO selectedBet = null;
+
+                for (BetDTO bet: currentBets){
+                    if (bet.getTs() == betId){
+                        selectedBet = bet;
+                    }
+                }
+
+                if (selectedBet == null){
+                    throw new Exception("Bet id " + betId + " not founded");
+                }
+
+                MatchGambledDTO newGamble = new MatchGambledDTO();
+                newGamble.setGameId(gameId);
+
+                newGamble.setGameId(gameId);
+
+                newGamble.setQuoteAtTimeOfBet(currentMatch.getPayout(outcome));
+
+                newGamble.setOutcome(body.getOutcome());
+                newGamble.setTs(System.currentTimeMillis());
+
+                currentUserData.removeBet(selectedBet);
+                selectedBet.getGames().add(newGamble);
+                currentUserData.addBet(selectedBet);
+
+                HttpEntity<UserDataDTO> request = new HttpEntity<>(currentUserData, headers);
+
+                ResponseEntity<UserDataDTO> updatedUserDataRequest = restTemplate.exchange(
+                        sessionServiceUrl + "/api/sessions/", HttpMethod.POST, request,
+                        new ParameterizedTypeReference<UserDataDTO>() {});
+                // verify status code of request
+                if (updatedUserDataRequest.getStatusCode() != HttpStatus.OK) {
+                    return ResponseEntity.status(updatedUserDataRequest.getStatusCode()).build();
+                }
+
+                currentUserData = updatedUserDataRequest.getBody();
 
             }
 
-//            if (body.getBetId() == null){
-//                // crea una nuova sessione
-//
-//                // controlla che le sessioni a livello dell'utente non siano più del massimo consentito
-//                if (userData.getListOfBets().size() == MAX_BET){
-//                    throw new Exception("You have already all bets occupied");
-//                }
-//
-//                // istanzia una nuova schedina
-//            }
-//
-//            BetDTO currentBet = null;
-//
-//            for (BetDTO bet : userData.getListOfBets()){
-//                if (bet.getTs() == body.getBetId()){
-//                    currentBet = bet;
-//                }
-//            }
-//
-//            if (currentBet == null){
-//                throw new Exception("Bet with that Id not founded");
-//            }
-
-            // aggiungi il match all'array ed aggiorna la sessione
-
-            // ritorna UserData aggiornata
 
             toRet = ResponseEntity.ok(currentUserData);
 
