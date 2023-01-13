@@ -4,8 +4,8 @@ package com.isd.application.controller;
 import com.isd.application.commons.CurrencyEnum;
 import com.isd.application.commons.OutcomeEnum;
 import com.isd.application.commons.PlacedBetEnum;
+import com.isd.application.commons.TransactionStatus;
 import com.isd.application.dto.*;
-
 import com.isd.application.service.PlacedBetService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +15,10 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.isd.application.commons.MatchStatus.FINISHED;
-import static com.isd.application.commons.MatchStatus.TO_BE_PLAYED;
 
 @RestController
 @RequestMapping("/app/gamble")
@@ -93,6 +91,20 @@ public class GambleController {
         return updatedUserDataRequest.getBody();
     }
 
+    private TransactionResponseDTO withdraw(TransactionRequestDTO req) {
+        HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
+
+        ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
+                authServiceUrl + "/auth/transaction/withdraw", HttpMethod.POST, request,
+                new ParameterizedTypeReference<TransactionResponseDTO>() {});
+        // verify status code of request
+        if (transaction.getStatusCode() != HttpStatus.OK) {
+            handleError(transaction.getStatusCode(), "Error on update data session");
+        }
+
+        return transaction.getBody();
+    }
+
     /**
      * Gestisce la creazione di una nuova sessione, se non presente l'eventuale aggiornamento di una schedina già presente (aggiunta squadra)
      * */
@@ -154,14 +166,23 @@ public class GambleController {
                 List<BetDTO> currentBets = currentUserData.getListOfBets();
                 BetDTO selectedBet = null;
 
+                // TODO: controllare
+
+
+
                 for (BetDTO bet: currentBets){
-                    if (bet.getTs() == betId){
+                    // FIXME:
+                    if (bet.getTs().toString().equals(betId.toString())){
                         selectedBet = bet;
                     }
                 }
 
                 if (selectedBet == null){
                     throw new Exception("Bet id " + betId + " not founded");
+                }
+
+                if (selectedBet.getMatchByMatchId(gameId) != null){
+                    throw new Exception("Match already in bet");
                 }
 
                 MatchGambledDTO newGamble = new MatchGambledDTO();
@@ -235,7 +256,8 @@ public class GambleController {
 
     @PostMapping(path="/place-bet")
     public @ResponseBody PlacedBetDTO placebet(@NotNull @RequestBody PlaceBetDTO body) throws ResponseStatusException, Exception {
-        PlacedBetDTO toRet = null;
+        PlacedBetDTO toRet = new PlacedBetDTO();
+        toRet.setStatus(PlacedBetEnum.PROCESSING);
         try {
 
             Integer userId = body.getUserId();
@@ -291,10 +313,26 @@ public class GambleController {
             toRet.setPayout(selectedBet.getPayout());
             toRet.setTs(System.currentTimeMillis());
             // TODO:
-            toRet.setStatus(PlacedBetEnum.PLAYED);
+            toRet.setStatus(PlacedBetEnum.PAYING);
 
             // chiama il service per salvare il DTO (relativo converter)
             placedBetService.save(toRet);
+
+            TransactionRequestDTO transactionReq = new TransactionRequestDTO();
+
+            transactionReq.setCircuit("APP_SERVICE");
+            // TODO: cast
+            transactionReq.setAmount(Float.valueOf(betValue));
+            transactionReq.setUserId(userId);
+
+            // chiamo l'auth per effettuare la transaction
+            TransactionResponseDTO transactionResp = withdraw(transactionReq);
+
+            if (transactionResp.getStatus() != TransactionStatus.CLOSED){
+                throw new Exception("Something went wrong");
+            }
+
+            toRet.setStatus(PlacedBetEnum.PLAYED);
 
             // se va tutto bene, rimuovi dalla sessione esiste la schedina
             currentSession.removeBet(selectedBet);

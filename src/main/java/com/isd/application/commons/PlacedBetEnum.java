@@ -1,5 +1,5 @@
 package com.isd.application.commons;
 
 public enum PlacedBetEnum {
-    PLAYED, LOST, WIN, ERROR
+    PROCESSING, PAYING, PLAYED, LOST, WIN, ERROR
 }
