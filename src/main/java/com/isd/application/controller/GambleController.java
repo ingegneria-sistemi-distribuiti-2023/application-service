@@ -38,11 +38,24 @@ public class GambleController {
     @Value("${game.service.url}")
     String gameServiceUrl;
 
+    @Value("${auth.service.url}")
+    String authServiceUrl;
+
     private void handleError(HttpStatusCode status, String message) {
         if (message != null) {
             throw new IllegalArgumentException(status + " - " + message);
         }
         throw new IllegalArgumentException(status.toString());
+    }
+
+    private UserBalanceDTO getUserInfo(Integer userId) {
+        ResponseEntity<UserBalanceDTO> request = restTemplate.exchange(
+                authServiceUrl + "/auth/user/" + userId, HttpMethod.GET, null,
+                new ParameterizedTypeReference<UserBalanceDTO>() {});
+        if (request.getStatusCode() != HttpStatus.OK) {
+            handleError(request.getStatusCode(), "Error on /auth/user/" + userId);
+        }
+        return request.getBody();
     }
 
     private UserDataDTO getCurrentUserData(Integer userId) {
@@ -238,24 +251,33 @@ public class GambleController {
                 throw new Exception("User Id not founded");
             }
 
-            // TODO: Fetch ad applicationService in modo tale che ci ritorni User
-
-            // UserBalanceDto user = ....
-            // CHECK user != null ,enabled = true, cashAmount > betValue
-
-            UserDataDTO currentSession = getCurrentUserData(userId);
-
             if (betId == null){
                 throw new Exception("Bet Id must be provided");
             }
+
+            // TODO: Fetch ad applicationService in modo tale che ci ritorni User
+
+            UserBalanceDTO user = getUserInfo(userId);
+
+            if (user == null ){
+                throw new Exception("User not found");
+            }
+
+            if (user.getEnabled() == false){
+                throw new Exception("User not enabled");
+            }
+
+            if (user.getCashableAmount() < betValue){
+                throw new Exception("Cash amount less than betValue");
+            }
+
+            UserDataDTO currentSession = getCurrentUserData(userId);
 
             BetDTO selectedBet = currentSession.getBetByBetId(betId);
 
             if (selectedBet == null){
                 throw new Exception("Invalid betId");
             }
-
-            // tutti i Check sono passati
 
             // TODO: scalare il user balance con un'API di authentication che si occupa di decrementare il balance di un utente
 
@@ -271,8 +293,7 @@ public class GambleController {
             // TODO:
             toRet.setStatus(PlacedBetEnum.PLAYED);
 
-            // Chiama il PlacedBetService per salvare il DTO (relativo converter)
-
+            // chiama il service per salvare il DTO (relativo converter)
             placedBetService.save(toRet);
 
             // se va tutto bene, rimuovi dalla sessione esiste la schedina
