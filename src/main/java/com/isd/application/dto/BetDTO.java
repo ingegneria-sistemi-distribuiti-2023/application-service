@@ -7,28 +7,27 @@ import com.isd.application.commons.CurrencyEnum;
 
 public class BetDTO implements Serializable{
     private static final long serialVersionUID = 6529665465167757690L;
-    private int betValue;
+    private Integer betValue;
     private CurrencyEnum currency;
     private List<MatchGambledDTO> games;
-    private long ts;
+    private Long ts;
     private static int MAX_MATCH = 3;
 
     public BetDTO() {
     }
 
-    public BetDTO(int betValue, CurrencyEnum currency, List<MatchGambledDTO> games, long ts) {
+    public BetDTO(Integer betValue, CurrencyEnum currency, List<MatchGambledDTO> games, Long ts) {
         this.betValue = betValue;
         this.currency = currency;
         this.games = games;
-        this.ts = ts;
     }
 
-    public int getBetValue() {
+    public Integer getBetValue() {
         return betValue;
     }
 
     //set bet value
-    public void setBetValue(int betValue) {
+    public void setBetValue(Integer betValue) {
         this.betValue = betValue;
     }
 
@@ -50,12 +49,12 @@ public class BetDTO implements Serializable{
         this.games = games;
     }
 
-    public long getTs() {
+    public Long getTs() {
         return ts;
     }
 
     //set ts
-    public void setTs(long ts) {
+    public void setTs(Long ts) {
         this.ts = ts;
     }
 
@@ -137,5 +136,13 @@ public class BetDTO implements Serializable{
 
         games.remove(toRemove);
 
+    }
+
+    public Double getPayout(){
+        Double payout = 0.0;
+        for (MatchGambledDTO match: getGames()){
+            payout += match.getQuoteAtTimeOfBet();
+        }
+        return payout;
     }
 }

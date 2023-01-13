@@ -13,42 +13,42 @@ import com.isd.application.commons.CurrencyEnum;
  */
 
 public class PlaceBetDTO {
-    private int userId;
-    private long betId;
-    private int betValue;
+    private Integer userId;
+    private Long betId;
+    private Integer betValue;
     private CurrencyEnum currency;
 
     public PlaceBetDTO() {
     }
 
-    public PlaceBetDTO(int userId, long betId, int betValue, CurrencyEnum currency) {
+    public PlaceBetDTO(Integer userId, Long betId, Integer betValue, CurrencyEnum currency) {
         this.userId = userId;
         this.betId = betId;
         this.betValue = betValue;
         this.currency = currency;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
-    public long getBetId() {
+    public Long getBetId() {
         return betId;
     }
 
-    public void setBetId(long betId) {
+    public void setBetId(Long betId) {
         this.betId = betId;
     }
 
-    public int getBetValue() {
+    public Integer getBetValue() {
         return betValue;
     }
 
-    public void setBetValue(int betValue) {
+    public void setBetValue(Integer betValue) {
         this.betValue = betValue;
     }
 

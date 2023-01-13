@@ -6,22 +6,22 @@ import com.isd.application.commons.OutcomeEnum;
 
 public class MatchGambledDTO implements Serializable{
     private static final long serialVersionUID = 6529685064657757690L;
-    private int gameId;
+    private Integer gameId;
     private OutcomeEnum outcome;
-    private double quoteAtTimeOfBet;
-    private long ts;
+    private Double quoteAtTimeOfBet;
+    private Long ts;
 
     public MatchGambledDTO() {
     }
 
-    public MatchGambledDTO(int gameId, OutcomeEnum outcome, double quoteAtTimeOfBet, long ts) {
+    public MatchGambledDTO(Integer gameId, OutcomeEnum outcome, Double quoteAtTimeOfBet, Long ts) {
         this.gameId = gameId;
         this.outcome = outcome;
         this.quoteAtTimeOfBet = quoteAtTimeOfBet;
         this.ts = ts;
     }
 
-    public int getGameId() {
+    public Integer getGameId() {
         return gameId;
     }
 
@@ -29,15 +29,15 @@ public class MatchGambledDTO implements Serializable{
         return outcome;
     }
 
-    public double getQuoteAtTimeOfBet() {
+    public Double getQuoteAtTimeOfBet() {
         return quoteAtTimeOfBet;
     }
 
-    public long getTs() {
+    public Long getTs() {
         return ts;
     }
 
-    public void setGameId(int gameId) {
+    public void setGameId(Integer gameId) {
         this.gameId = gameId;
     }
 
@@ -45,11 +45,11 @@ public class MatchGambledDTO implements Serializable{
         this.outcome = outcome;
     }
 
-    public void setQuoteAtTimeOfBet(double quoteAtTimeOfBet) {
+    public void setQuoteAtTimeOfBet(Double quoteAtTimeOfBet) {
         this.quoteAtTimeOfBet = quoteAtTimeOfBet;
     }
 
-    public void setTs(long ts) {
+    public void setTs(Long ts) {
         this.ts = ts;
     }
 

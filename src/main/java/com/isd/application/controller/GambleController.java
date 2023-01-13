@@ -3,6 +3,7 @@ package com.isd.application.controller;
 
 import com.isd.application.commons.CurrencyEnum;
 import com.isd.application.commons.OutcomeEnum;
+import com.isd.application.commons.PlacedBetEnum;
 import com.isd.application.dto.*;
 
 import jakarta.validation.constraints.NotNull;
@@ -12,10 +13,13 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.isd.application.commons.MatchStatus.FINISHED;
+import static com.isd.application.commons.MatchStatus.TO_BE_PLAYED;
 
 @RestController
 @RequestMapping("/app/gamble")
@@ -113,10 +117,8 @@ public class GambleController {
                 gamble.setOutcome(body.getOutcome());
                 gamble.setTs(System.currentTimeMillis());
                 gambledMatches.add(gamble);
-
-                // TODO: to handle
-                newBet.setBetValue(10);
-                newBet.setCurrency(CurrencyEnum.EUR);
+                newBet.setBetValue(null);
+                newBet.setCurrency(null);
                 newBet.setGames(gambledMatches);
 
                 // l'utente non ha una sessione e di conseguenza va istanziata
@@ -156,7 +158,7 @@ public class GambleController {
                 newGamble.setTs(System.currentTimeMillis());
 
                 currentUserData.removeBet(selectedBet);
-                selectedBet.getGames().add(newGamble);
+                selectedBet.addMatch(newGamble);
                 currentUserData.addBet(selectedBet);
             }
 
@@ -215,13 +217,62 @@ public class GambleController {
     }
 
     @PostMapping(path="/place-bet")
-    public @ResponseBody UserDataDTO recharge(@NotNull @RequestBody PlaceBetDTO body) throws Exception {
-        UserDataDTO toRet = null;
-
+    public @ResponseBody PlacedBetDTO placebet(@NotNull @RequestBody PlaceBetDTO body) throws ResponseStatusException, Exception {
+        PlacedBetDTO toRet = null;
         try {
-//            toRet = umps.recharge(body);
+
+            Integer userId = body.getUserId();
+            Integer betValue = body.getBetValue();
+            Long betId = body.getBetId();
+            CurrencyEnum currency = body.getCurrency();
+
+            if (currency == null || betValue <= 2){
+                throw new Exception("Value mismatch");
+            }
+
+            if (userId == null){
+                throw new Exception("User Id not founded");
+            }
+
+            // TODO: Fetch ad applicationService in modo tale che ci ritorni User
+
+            // UserBalanceDto user = ....
+            // CHECK user != null ,enabled = true, cashAmount > betValue
+
+            UserDataDTO currentSession = getCurrentUserData(userId);
+
+            if (betId == null){
+                throw new Exception("Bet Id must be provided");
+            }
+
+            BetDTO selectedBet = currentSession.getBetByBetId(betId);
+
+            if (selectedBet == null){
+                throw new Exception("Invalid betId");
+            }
+
+            // tutti i Check sono passati
+
+            // TODO: scalare il user balance con un'API di authentication che si occupa di decrementare il balance di un utente
+
+            toRet = new PlacedBetDTO();
+            toRet.setUserId(userId);
+            toRet.setBetId(betId);
+            toRet.setGambledMatches(selectedBet.getGames());
+            toRet.setCurrency(currency);
+            toRet.setBetValue(betValue);
+
+            toRet.setPayout(selectedBet.getPayout());
+            toRet.setTs(System.currentTimeMillis());
+            // TODO:
+            toRet.setStatus(PlacedBetEnum.PLAYED);
+
+            // Chiama il PlacedBetService per salvare il DTO (relativo converter)
+
+            // se va tutto bene, rimuovi dalla sessione esiste la schedina
+
         } catch (Error e){
-            new Exception(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, null, e);
         }
 
         return toRet;
