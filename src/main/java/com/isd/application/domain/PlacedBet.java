@@ -1,22 +1,26 @@
-package com.isd.application.dto;
+package com.isd.application.domain;
 
 import com.isd.application.commons.CurrencyEnum;
 import com.isd.application.commons.PlacedBetEnum;
+import jakarta.persistence.*;
 
-import java.util.List;
 
-public class PlacedBetDTO {
+@Entity
+@Table(name = "placed_bets")
+public class PlacedBet {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "user_id")
     private Integer userId;
-    private Long betId;
     private Integer amount;
+    @Enumerated(EnumType.STRING)
     private CurrencyEnum currency;
-    private List<MatchGambledDTO> gambledMatches;
-    private Double payout;
-    private Long ts;
+    @Enumerated(EnumType.STRING)
     private PlacedBetEnum status;
+    private Long ts;
 
-    public PlacedBetDTO() {
+    public PlacedBet() {
     }
 
     public Integer getId() {
@@ -35,14 +39,6 @@ public class PlacedBetDTO {
         this.userId = userId;
     }
 
-    public Long getBetId() {
-        return betId;
-    }
-
-    public void setBetId(Long betId) {
-        this.betId = betId;
-    }
-
     public Integer getAmount() {
         return amount;
     }
@@ -59,12 +55,12 @@ public class PlacedBetDTO {
         this.currency = currency;
     }
 
-    public List<MatchGambledDTO> getGambledMatches() {
-        return gambledMatches;
+    public PlacedBetEnum getStatus() {
+        return status;
     }
 
-    public void setGambledMatches(List<MatchGambledDTO> gambledMatches) {
-        this.gambledMatches = gambledMatches;
+    public void setStatus(PlacedBetEnum status) {
+        this.status = status;
     }
 
     public Long getTs() {
@@ -73,21 +69,5 @@ public class PlacedBetDTO {
 
     public void setTs(Long ts) {
         this.ts = ts;
-    }
-
-    public Double getPayout() {
-        return payout;
-    }
-
-    public void setPayout(Double payout) {
-        this.payout = payout;
-    }
-
-    public PlacedBetEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(PlacedBetEnum status) {
-        this.status = status;
     }
 }

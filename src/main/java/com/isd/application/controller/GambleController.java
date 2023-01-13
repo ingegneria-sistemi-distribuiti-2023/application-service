@@ -6,6 +6,7 @@ import com.isd.application.commons.OutcomeEnum;
 import com.isd.application.commons.PlacedBetEnum;
 import com.isd.application.dto.*;
 
+import com.isd.application.service.PlacedBetService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,9 @@ public class GambleController {
 
     @Autowired
     RestTemplate restTemplate;
+
+    @Autowired
+    PlacedBetService placedBetService;
 
     @Value("${session.service.url}")
     String sessionServiceUrl;
@@ -260,7 +264,7 @@ public class GambleController {
             toRet.setBetId(betId);
             toRet.setGambledMatches(selectedBet.getGames());
             toRet.setCurrency(currency);
-            toRet.setBetValue(betValue);
+            toRet.setAmount(betValue);
 
             toRet.setPayout(selectedBet.getPayout());
             toRet.setTs(System.currentTimeMillis());
@@ -269,7 +273,11 @@ public class GambleController {
 
             // Chiama il PlacedBetService per salvare il DTO (relativo converter)
 
+            placedBetService.save(toRet);
+
             // se va tutto bene, rimuovi dalla sessione esiste la schedina
+            currentSession.removeBet(selectedBet);
+            updateUserData(currentSession);
 
         } catch (Error e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, null, e);
