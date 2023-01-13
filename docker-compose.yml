@@ -1,16 +1,21 @@
 version: '3.3'
 
 services:
-  application_service:
+  application-service:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
+    restart: unless-stopped
+    environment:
+      GAME_SERVICE_URL: http://game-service:8081
+      SESSION_SERVICE_URL: http://session-service:8084
+      # TODO: add authentication service url
     ports:
       - 8080:8080
     networks:
       - game-network
       - appliction-network
+      - session-network
     volumes:
       - maven_packages:/root/.m2
 
@@ -19,6 +24,8 @@ networks:
     name: game-network
   appliction-network:
     name: appliction-network
+  session-network:
+    name: session-network
 
 volumes:
   maven_packages:

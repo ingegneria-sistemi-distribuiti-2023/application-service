@@ -38,6 +38,7 @@ public class GambleController {
     }
 
     private UserDataDTO getCurrentUserData(Integer userId) {
+        // TODO: add Access-Token to header
         ResponseEntity<UserDataDTO> userDataRequest = restTemplate.exchange(
                 sessionServiceUrl + "/api/sessions/" + userId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<UserDataDTO>() {});

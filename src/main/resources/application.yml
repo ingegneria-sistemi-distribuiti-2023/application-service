@@ -12,8 +12,8 @@ auth:
 
 game:
   service:
-    url: "http://localhost:8081"
+    url: ${GAME_SERVICE_URL:http://localhost:8081}
 
 session:
   service:
-    url: "http://localhost:8084"
+    url: ${SESSION_SERVICE_URL:http://localhost:8084}
