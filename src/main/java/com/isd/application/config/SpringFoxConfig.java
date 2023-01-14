@@ -1,4 +1,4 @@
-package com.isd.application.commons;
+package com.isd.application.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

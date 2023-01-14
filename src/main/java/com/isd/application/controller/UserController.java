@@ -52,6 +52,22 @@ public class UserController {
         return transaction;
     }
 
+    private ResponseEntity<TransactionResponseDTO> depositToAuth(TransactionRequestDTO req, String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req, headers);
+
+        ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
+                authServiceUrl + "/auth/transaction/deposit", HttpMethod.POST, request,
+                new ParameterizedTypeReference<TransactionResponseDTO>() {});
+        // verify status code of request
+        if (transaction.getStatusCode() != HttpStatus.OK) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return transaction;
+    }
+
     @PostMapping(path="/register")
     public @ResponseBody ResponseEntity<AuthenticationResponse> register(@NotNull @RequestBody UserRegistrationDTO body) throws Exception {
         HttpEntity<UserRegistrationDTO> req = new HttpEntity<UserRegistrationDTO>(body);
@@ -82,7 +98,17 @@ public class UserController {
 
     @PostMapping(path="/deposit")
     public @ResponseBody ResponseEntity<TransactionResponseDTO> deposit(@NotNull @RequestBody TransactionRequestDTO body) throws Exception {
-        ResponseEntity<TransactionResponseDTO> deposit = depositToAuth(body);
+        LoginRequest loginRequest = new LoginRequest();
+
+        // TODO: non abbiamo modo di fare un findById utilizziamo lo userRepository perché non abbiamo il db disponibile
+
+        loginRequest.setUsername("danilo");
+        loginRequest.setPassword("paparedda1");
+        ResponseEntity<AuthenticationResponse> jwt = getJwt(loginRequest);
+
+        LOGGER.info(String.valueOf(jwt.getStatusCode()));
+
+        ResponseEntity<TransactionResponseDTO> deposit = depositToAuth(body, jwt.getBody().getToken());
 
         return deposit;
     }

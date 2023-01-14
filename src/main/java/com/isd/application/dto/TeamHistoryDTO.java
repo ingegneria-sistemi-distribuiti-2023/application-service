@@ -15,6 +15,6 @@ import java.util.List;
 public class TeamHistoryDTO {
     private Integer id;
     private String name;
-    List<MatchHistoryDto> playedGames;
+    List<MatchHistoryDTO> playedGames;
 
 }

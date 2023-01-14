@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/app/game")
+@RequestMapping("/app/match")
 public class GameController {
 
     @Autowired

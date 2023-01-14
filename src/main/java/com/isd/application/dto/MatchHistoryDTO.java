@@ -12,7 +12,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchHistoryDto {
+public class MatchHistoryDTO {
     // this DTO contains the match ID, IDs of the teams, the home and away scores, the start time and the end time of the match
     private Integer id;
     private Integer homeTeamId;
