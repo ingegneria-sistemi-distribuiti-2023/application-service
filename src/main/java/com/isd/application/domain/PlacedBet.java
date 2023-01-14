@@ -4,6 +4,8 @@ import com.isd.application.commons.CurrencyEnum;
 import com.isd.application.commons.PlacedBetEnum;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 
 @Entity
 @Table(name = "placed_bets")
@@ -19,6 +21,9 @@ public class PlacedBet {
     @Enumerated(EnumType.STRING)
     private PlacedBetEnum status;
     private Long ts;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "placedBet")
+    private List<PlacedBetMatch> matches;
 
     public PlacedBet() {
     }
@@ -69,5 +74,13 @@ public class PlacedBet {
 
     public void setTs(Long ts) {
         this.ts = ts;
+    }
+
+    public List<PlacedBetMatch> getMatches() {
+        return matches;
+    }
+
+    public void setMatches(List<PlacedBetMatch> matches) {
+        this.matches = matches;
     }
 }

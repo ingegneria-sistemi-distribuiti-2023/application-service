@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+// TODO: Prendere come esempio. Quello che è gestito nel gambleController da mettere qui
+// TODO: Da realizzare per ogni microservizio chiamato da qst server
 @Service
 public class GameService {
     private final RestTemplate restTemplate;

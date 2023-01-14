@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+// TODO: Prendere come esempio. Quello che è gestito nel gambleController da mettere qui
+// TODO: Da realizzare per ogni microservizio chiamato da qst server
 @Service
 public class UserService {
     private final RestTemplate restTemplate;

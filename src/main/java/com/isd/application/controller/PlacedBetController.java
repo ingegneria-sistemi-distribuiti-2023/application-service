@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/app/placedbet")
 public class PlacedBetController {
@@ -23,20 +26,18 @@ public class PlacedBetController {
     @Autowired
     PlacedBetService placedBetService;
 
+    // TODO: bisogna modificare i body di response, fare vedere le squadre
+
     @GetMapping(path = "/{id}")
     public @ResponseBody
-    PlacedBetDTO getPlacedbetById(@PathVariable("id") String placedbetId) throws ResponseStatusException, Exception {
-        PlacedBetDTO toRet = new PlacedBetDTO();
-
-        return toRet;
+    PlacedBetDTO getPlacedbetById(@NotNull @PathVariable("id") Integer placedbetId) throws ResponseStatusException, Exception {
+        return placedBetService.getByBetId(placedbetId);
     }
 
     @GetMapping(path = "/user/{id}")
     public @ResponseBody
-    PlacedBetDTO getAllPlacedbetByUserid(@PathVariable("id") String userId) throws ResponseStatusException, Exception {
-        PlacedBetDTO toRet = new PlacedBetDTO();
-
-        return toRet;
+    List<PlacedBetDTO> getAllPlacedbetByUserid(@NotNull @PathVariable("id") Integer userId) throws ResponseStatusException, Exception {
+        return placedBetService.getAllByUserId(userId);
     }
 }
 

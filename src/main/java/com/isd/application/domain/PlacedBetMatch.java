@@ -11,11 +11,9 @@ public class PlacedBetMatch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "placed_bet")
-    private Integer placedBetId;
-//    @ManyToOne
-//    @JoinColumn(name = "placed_bet", referencedColumnName = "id")
-//    private PlacedBet placedBet;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "placed_bet", nullable = false)
+    private PlacedBet placedBet;
 
     @Column(name = "match_id")
     private Integer matchId;
@@ -36,20 +34,12 @@ public class PlacedBetMatch {
         this.id = id;
     }
 
-//    public PlacedBet getPlacedBet() {
-//        return placedBet;
-//    }
-//
-//    public void setPlacedBet(PlacedBet placedBet) {
-//        this.placedBet = placedBet;
-//    }
-
-    public Integer getPlacedBetId() {
-        return placedBetId;
+    public PlacedBet getPlacedBet() {
+        return placedBet;
     }
 
-    public void setPlacedBetId(Integer placedBetId) {
-        this.placedBetId = placedBetId;
+    public void setPlacedBet(PlacedBet placedBet) {
+        this.placedBet = placedBet;
     }
 
     public Integer getMatchId() {

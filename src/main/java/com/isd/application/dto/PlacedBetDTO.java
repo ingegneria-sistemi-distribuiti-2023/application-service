@@ -16,7 +16,6 @@ import java.util.List;
 public class PlacedBetDTO {
     private Integer id;
     private Integer userId;
-    private Long betId;
     private Integer amount;
     private CurrencyEnum currency;
     private List<MatchGambledDTO> gambledMatches;

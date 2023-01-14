@@ -297,7 +297,6 @@ public class GambleController {
 
             toRet = new PlacedBetDTO();
             toRet.setUserId(userId);
-            toRet.setBetId(betId);
             toRet.setGambledMatches(selectedBet.getGames());
             toRet.setCurrency(currency);
             toRet.setAmount(betValue);
