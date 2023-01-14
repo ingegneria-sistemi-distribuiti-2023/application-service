@@ -39,45 +39,40 @@ public class GambleController {
     @Value("${auth.service.url}")
     String authServiceUrl;
 
-    private void handleError(HttpStatusCode status, String message) {
-        if (message != null) {
-            throw new IllegalArgumentException(status + " - " + message);
-        }
-        throw new IllegalArgumentException(status.toString());
-    }
-
-    private UserBalanceDTO getUserInfo(Integer userId) {
+    private ResponseEntity<UserBalanceDTO> getUserInfo(Integer userId) {
         ResponseEntity<UserBalanceDTO> request = restTemplate.exchange(
                 authServiceUrl + "/auth/user/" + userId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<UserBalanceDTO>() {});
         if (request.getStatusCode() != HttpStatus.OK) {
-            handleError(request.getStatusCode(), "Error on /auth/user/" + userId);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+//            handleError(request.getStatusCode(), "Error on /auth/user/" + userId);
         }
-        return request.getBody();
+        return request;
     }
 
-    private UserDataDTO getCurrentUserData(Integer userId) {
+    private ResponseEntity<UserDataDTO> getCurrentUserData(Integer userId) {
         // TODO: add Access-Token to header
         ResponseEntity<UserDataDTO> userDataRequest = restTemplate.exchange(
                 sessionServiceUrl + "/api/sessions/" + userId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<UserDataDTO>() {});
         if (userDataRequest.getStatusCode() != HttpStatus.OK) {
-            handleError(userDataRequest.getStatusCode(), "Error on /api/sessions/");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return userDataRequest.getBody();
+        return userDataRequest;
     }
 
-    private MatchDTO getCurrentMatch(Integer gameId) {
+    private ResponseEntity<MatchDTO> getCurrentMatch(Integer gameId) {
         ResponseEntity<MatchDTO> matchRequest = restTemplate.exchange(
                 gameServiceUrl + "/match/" + gameId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<MatchDTO>() {});
         if (matchRequest.getStatusCode() != HttpStatus.OK) {
-            handleError(matchRequest.getStatusCode(), "Error on /match");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return matchRequest.getBody();
+        return matchRequest;
     }
 
-    private UserDataDTO updateUserData(UserDataDTO userData) {
+    private ResponseEntity<UserDataDTO> updateUserData(UserDataDTO userData) {
          HttpEntity<UserDataDTO> request = new HttpEntity<>(userData);
 
         ResponseEntity<UserDataDTO> updatedUserDataRequest = restTemplate.exchange(
@@ -85,13 +80,13 @@ public class GambleController {
                 new ParameterizedTypeReference<UserDataDTO>() {});
         // verify status code of request
         if (updatedUserDataRequest.getStatusCode() != HttpStatus.OK) {
-            handleError(updatedUserDataRequest.getStatusCode(), "Error on update data session");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return updatedUserDataRequest.getBody();
+        return updatedUserDataRequest;
     }
 
-    private TransactionResponseDTO withdraw(TransactionRequestDTO req) {
+    private ResponseEntity<TransactionResponseDTO> withdraw(TransactionRequestDTO req) {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
 
         ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
@@ -99,15 +94,12 @@ public class GambleController {
                 new ParameterizedTypeReference<TransactionResponseDTO>() {});
         // verify status code of request
         if (transaction.getStatusCode() != HttpStatus.OK) {
-            handleError(transaction.getStatusCode(), "Error on update data session");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return transaction.getBody();
+        return transaction;
     }
 
-    /**
-     * Gestisce la creazione di una nuova sessione, se non presente l'eventuale aggiornamento di una schedina già presente (aggiunta squadra)
-     * */
     @PostMapping(path="/add")
     public @ResponseBody ResponseEntity<UserDataDTO> create(@RequestBody AddMatchDTO body) throws Exception {
         ResponseEntity<UserDataDTO> toRet = null;
@@ -116,7 +108,7 @@ public class GambleController {
             // prendo la sessione attuale
             Integer userId = body.getUserId();
 
-            UserDataDTO currentUserData = getCurrentUserData(userId);
+            UserDataDTO currentUserData = getCurrentUserData(userId).getBody();
 
             Integer gameId = body.getGameId();
             Long betId = body.getBetId();
@@ -124,7 +116,7 @@ public class GambleController {
 
             // chiamo il game-service per verificare che esista il match
             // ed ottengo il dato relativo al match che si vuole giocare
-            MatchDTO currentMatch = getCurrentMatch(gameId);
+            MatchDTO currentMatch = getCurrentMatch(gameId).getBody();
 
             if (currentMatch.getStatus().equals(FINISHED) ){ // || currentMatch.getStatus().equals(PLAYING)){
                 throw new Exception("Too late!");
@@ -200,7 +192,7 @@ public class GambleController {
                 currentUserData.addBet(selectedBet);
             }
 
-            currentUserData = updateUserData(currentUserData);
+            currentUserData = updateUserData(currentUserData).getBody();
 
             toRet = ResponseEntity.ok(currentUserData);
 
@@ -220,7 +212,7 @@ public class GambleController {
             Integer userId = body.getUserId();
 
             // prendo la sessione attuale
-            UserDataDTO currentUserData = getCurrentUserData(userId);
+            UserDataDTO currentUserData = getCurrentUserData(userId).getBody();
 
             Integer matchId = body.getGameId();
             Long betId = body.getBetId();
@@ -228,7 +220,7 @@ public class GambleController {
             BetDTO selectedBet = currentUserData.getBetByBetId(betId);
 
             if (selectedBet == null){
-                handleError(HttpStatus.NOT_FOUND, "Error on update data session");
+                throw new Exception("Error on update data session");
             }
 
             MatchGambledDTO matchToRemove = selectedBet.getMatchByMatchId(matchId);
@@ -245,10 +237,10 @@ public class GambleController {
                 currentUserData.setListOfBets(new LinkedList<>());
             }
 
-            toRet = updateUserData(currentUserData);
+            toRet = updateUserData(currentUserData).getBody();
 
         } catch (Error e){
-            handleError(HttpStatus.NOT_FOUND, e.getMessage());
+            throw new Exception("Error on " + e.getMessage());
         }
 
         return toRet;
@@ -279,7 +271,7 @@ public class GambleController {
 
             // TODO: Fetch ad applicationService in modo tale che ci ritorni User
 
-            UserBalanceDTO user = getUserInfo(userId);
+            UserBalanceDTO user = getUserInfo(userId).getBody();
 
             if (user == null ){
                 throw new Exception("User not found");
@@ -293,7 +285,7 @@ public class GambleController {
                 throw new Exception("Cash amount less than betValue");
             }
 
-            UserDataDTO currentSession = getCurrentUserData(userId);
+            UserDataDTO currentSession = getCurrentUserData(userId).getBody();
 
             BetDTO selectedBet = currentSession.getBetByBetId(betId);
 
@@ -326,7 +318,7 @@ public class GambleController {
             transactionReq.setUserId(userId);
 
             // chiamo l'auth per effettuare la transaction
-            TransactionResponseDTO transactionResp = withdraw(transactionReq);
+            TransactionResponseDTO transactionResp = withdraw(transactionReq).getBody();
 
             if (transactionResp.getStatus() != TransactionStatus.CLOSED){
                 throw new Exception("Something went wrong");
