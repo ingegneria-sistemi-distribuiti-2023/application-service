@@ -334,6 +334,8 @@ public class GambleController {
 
             toRet.setStatus(PlacedBetEnum.PLAYED);
 
+            placedBetService.save(toRet);
+
             // se va tutto bene, rimuovi dalla sessione esiste la schedina
             currentSession.removeBet(selectedBet);
             updateUserData(currentSession);
