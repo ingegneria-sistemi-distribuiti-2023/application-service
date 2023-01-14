@@ -4,7 +4,15 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.isd.application.commons.CurrencyEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BetDTO implements Serializable{
     private static final long serialVersionUID = 6529665465167757690L;
     private Integer betValue;
@@ -12,98 +20,6 @@ public class BetDTO implements Serializable{
     private List<MatchGambledDTO> games;
     private Long ts;
     private static int MAX_MATCH = 3;
-
-    public BetDTO() {
-    }
-
-    public BetDTO(Integer betValue, CurrencyEnum currency, List<MatchGambledDTO> games, Long ts) {
-        this.betValue = betValue;
-        this.currency = currency;
-        this.games = games;
-    }
-
-    public Integer getBetValue() {
-        return betValue;
-    }
-
-    //set bet value
-    public void setBetValue(Integer betValue) {
-        this.betValue = betValue;
-    }
-
-    public CurrencyEnum getCurrency() {
-        return currency;
-    }
-
-    //set currency
-    public void setCurrency(CurrencyEnum currency) {
-        this.currency = currency;
-    }
-
-    public List<MatchGambledDTO> getGames() {
-        return games;
-    }
-
-    //set games
-    public void setGames(List<MatchGambledDTO> games) {
-        this.games = games;
-    }
-
-    public Long getTs() {
-        return ts;
-    }
-
-    //set ts
-    public void setTs(Long ts) {
-        this.ts = ts;
-    }
-
-    // toString override
-    @Override
-    public String toString() {
-        return "Bet{" +
-                "betValue=" + betValue +
-                ", currency='" + currency + '\'' +
-                ", games=" + games +
-                ", ts=" + ts +
-                '}';
-    }
-
-    // equals override
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        BetDTO betDTO = (BetDTO) o;
-
-        if (betValue != betDTO.betValue) return false;
-        if (ts != betDTO.ts) return false;
-        if (currency != null ? !currency.equals(betDTO.currency) : betDTO.currency != null) return false;
-        return games != null ? games.equals(betDTO.games) : betDTO.games == null;
-    }
-
-    // hashCode override
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = betValue;
-        result = 31 * result + (currency != null ? currency.hashCode() : 0);
-        result = 31 * result + (games != null ? games.hashCode() : 0);
-        temp = Double.doubleToLongBits(ts);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
-
-    public MatchGambledDTO getMatchByMatchId(Integer gameId) throws Exception{
-        for (MatchGambledDTO game: getGames()){
-            if (game.getGameId().equals(gameId)){
-                return game;
-            }
-        }
-        return null;
-    }
 
     public void addMatch(MatchGambledDTO gamble) throws Exception {
         // Check if the number of bets in the list is less than or equal to 3
