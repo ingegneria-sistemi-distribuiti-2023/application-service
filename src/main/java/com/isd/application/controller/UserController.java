@@ -23,17 +23,17 @@ public class UserController {
     }
 
     @PostMapping(path="/login")
-    public @ResponseBody void login(@NotNull @RequestBody UserLoginDTO body) throws Exception {
+    public @ResponseBody void login(@NotNull @RequestBody LoginRequest body) throws Exception {
 
     }
 
     @PostMapping(path="/logout")
-    public @ResponseBody void logout(@NotNull @RequestBody UserLoginDTO body) throws Exception {
+    public @ResponseBody void logout(@NotNull @RequestBody LoginRequest body) throws Exception {
 
     }
 
     @PostMapping(path="/recharge")
-    public @ResponseBody void recharge(@NotNull @RequestBody RechargeDTO body) throws Exception {
+    public @ResponseBody void recharge(@NotNull @RequestBody TransactionRequestDTO body) throws Exception {
 
     }
 

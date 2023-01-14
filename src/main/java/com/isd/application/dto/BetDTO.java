@@ -61,4 +61,13 @@ public class BetDTO implements Serializable{
         }
         return payout;
     }
+
+    public MatchGambledDTO getMatchByMatchId(Integer gameId) throws Exception{
+        for (MatchGambledDTO game: getGames()){
+            if (game.getGameId().equals(gameId)){
+                return game;
+            }
+        }
+        return null;
+    }
 }

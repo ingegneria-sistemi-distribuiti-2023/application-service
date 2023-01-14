@@ -29,4 +29,18 @@ public class MatchDTO {
     private Date startTime;
     private Date endTime;
     private MatchStatus status;
+
+    public Double getPayout(OutcomeEnum outcome){
+        switch (outcome) {
+            case DRAW:
+                return getDrawPayout();
+            case AWAY:
+                return getAwayWinPayout();
+            case HOME:
+                return getHomeWinPayout();
+            default:
+                throw new IllegalArgumentException("Invalid outcome: " + outcome);
+        }
+    }
+
 }
