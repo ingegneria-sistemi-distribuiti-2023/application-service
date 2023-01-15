@@ -9,12 +9,16 @@ services:
     environment:
       GAME_SERVICE_URL: http://game-service:8081
       SESSION_SERVICE_URL: http://session-service:8084
-      # TODO: add authentication service url
+      AUTHENTICATION_SERVICE_URL: http://authentication-service:8082
+      JDBC_DATABASE_URL: jdbc:mysql://application-db:3306/applicationdb?allowPublicKeyRetrieval=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+      JDBC_DATABASE_PASSWORD: admin
+      JDBC_DATABASE_USERNAME: admin
     ports:
       - 8080:8080
     networks:
       - game-network
-      - appliction-network
+      - application-network
+      - authentication-network
       - session-network
     volumes:
       - maven_packages:/root/.m2
@@ -22,10 +26,12 @@ services:
 networks: 
   game-network:
     name: game-network
-  appliction-network:
-    name: appliction-network
+  application-network:
+    name: application-network
   session-network:
     name: session-network
+  authentication-network:
+    name: authentication-network
 
 volumes:
   maven_packages:
