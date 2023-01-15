@@ -3,10 +3,16 @@ package com.isd.application.domain;
 import com.isd.application.commons.CurrencyEnum;
 import com.isd.application.commons.PlacedBetEnum;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "placed_bets")
 public class PlacedBet {
@@ -25,62 +31,4 @@ public class PlacedBet {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "placedBet")
     private List<PlacedBetMatch> matches;
 
-    public PlacedBet() {
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public CurrencyEnum getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(CurrencyEnum currency) {
-        this.currency = currency;
-    }
-
-    public PlacedBetEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(PlacedBetEnum status) {
-        this.status = status;
-    }
-
-    public Long getTs() {
-        return ts;
-    }
-
-    public void setTs(Long ts) {
-        this.ts = ts;
-    }
-
-    public List<PlacedBetMatch> getMatches() {
-        return matches;
-    }
-
-    public void setMatches(List<PlacedBetMatch> matches) {
-        this.matches = matches;
-    }
 }

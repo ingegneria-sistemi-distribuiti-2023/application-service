@@ -1,5 +1,7 @@
 package com.isd.application.service;
 
+import com.isd.application.commons.CustomHttpResponse;
+import com.isd.application.commons.CustomServiceException;
 import com.isd.application.converter.PlacedBetConverter;
 import com.isd.application.converter.PlacedBetMatchConverter;
 import com.isd.application.domain.PlacedBet;
@@ -8,6 +10,7 @@ import com.isd.application.dto.PlacedBetDTO;
 import com.isd.application.repository.PlacedBetMatchRepository;
 import com.isd.application.repository.PlacedBetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
@@ -39,11 +42,11 @@ public class PlacedBetService {
         return bet;
     }
 
-    public PlacedBetDTO getByBetId(Integer betId){
+    public PlacedBetDTO getByBetId(Integer betId) throws Exception{
         PlacedBet entity = placedBetRepository.findOneById(betId);
 
         if (entity == null){
-            return null;
+            throw new CustomServiceException(new CustomHttpResponse(HttpStatus.NOT_FOUND, "Bet Id not founded"));
         }
 
         PlacedBetConverter cnv = new PlacedBetConverter();

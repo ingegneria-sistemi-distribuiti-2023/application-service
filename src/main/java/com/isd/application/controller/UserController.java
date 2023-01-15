@@ -1,6 +1,8 @@
 package com.isd.application.controller;
 
 import com.isd.application.dto.*;
+import com.isd.application.service.TransactionService;
+import com.isd.application.service.UserService;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,99 +20,28 @@ public class UserController {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${auth.service.url}")
-    String authServiceUrl;
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    TransactionService transactionService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-    private ResponseEntity<AuthenticationResponse> getJwt(LoginRequest loginData) {
-        HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
-
-        ResponseEntity<AuthenticationResponse> request = restTemplate.exchange(
-                authServiceUrl + "/auth/jwt/login", HttpMethod.POST, req,
-                new ParameterizedTypeReference<AuthenticationResponse>() {});
-
-        if (request.getStatusCode() != HttpStatus.OK) {
-            HttpStatusCode stat = request.getStatusCode();
-            LOGGER.warn(stat.toString());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return request;
-    }
-
-    private ResponseEntity<TransactionResponseDTO> depositToAuth(TransactionRequestDTO req) {
-        HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
-
-        ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
-                authServiceUrl + "/auth/transaction/deposit", HttpMethod.POST, request,
-                new ParameterizedTypeReference<TransactionResponseDTO>() {});
-        // verify status code of request
-        if (transaction.getStatusCode() != HttpStatus.OK) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        return transaction;
-    }
-
-    private ResponseEntity<TransactionResponseDTO> depositToAuth(TransactionRequestDTO req, String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
-        HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req, headers);
-
-        ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
-                authServiceUrl + "/auth/transaction/deposit", HttpMethod.POST, request,
-                new ParameterizedTypeReference<TransactionResponseDTO>() {});
-        // verify status code of request
-        if (transaction.getStatusCode() != HttpStatus.OK) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        return transaction;
-    }
-
     @PostMapping(path="/register")
     public @ResponseBody ResponseEntity<AuthenticationResponse> register(@NotNull @RequestBody UserRegistrationDTO body) throws Exception {
-        HttpEntity<UserRegistrationDTO> req = new HttpEntity<UserRegistrationDTO>(body);
-
-        ResponseEntity<AuthenticationResponse> request = restTemplate.exchange(
-                authServiceUrl + "/auth/jwt/register", HttpMethod.POST, req,
-                new ParameterizedTypeReference<AuthenticationResponse>() {});
-
-        if (request.getStatusCode() != HttpStatus.OK) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return request;
+        return userService.register(body);
     }
 
     @PostMapping(path="/login")
-    public @ResponseBody void login(@NotNull @RequestBody LoginRequest body) throws Exception {
-
-        ResponseEntity<AuthenticationResponse> jwt = getJwt(body);
-
-        LOGGER.info(String.valueOf(jwt.getStatusCode()));
-
-    }
-
-    @PostMapping(path="/logout")
-    public @ResponseBody void logout(@NotNull @RequestBody LoginRequest body) throws Exception {
+    public @ResponseBody ResponseEntity<AuthenticationResponse> login(@NotNull @RequestBody LoginRequest body) throws Exception {
+        return userService.getJwt(body);
 
     }
 
     @PostMapping(path="/deposit")
-    public @ResponseBody ResponseEntity<TransactionResponseDTO> deposit(@NotNull @RequestBody TransactionRequestDTO body) throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-
-        // TODO: non abbiamo modo di fare un findById utilizziamo lo userRepository perché non abbiamo il db disponibile
-
-        loginRequest.setUsername("danilo");
-        loginRequest.setPassword("paparedda1");
-        ResponseEntity<AuthenticationResponse> jwt = getJwt(loginRequest);
-
-        LOGGER.info(String.valueOf(jwt.getStatusCode()));
-
-        ResponseEntity<TransactionResponseDTO> deposit = depositToAuth(body, jwt.getBody().getToken());
-
-        return deposit;
+    public @ResponseBody ResponseEntity<TransactionResponseDTO> deposit(@NotNull @RequestBody TransactionRequestDTO body, @RequestHeader("Authorization") String bearerToken) throws Exception {
+        return new ResponseEntity<>(transactionService.depositToAuth(body, bearerToken.substring("Bearer ".length())), HttpStatus.OK);
     }
 
 }

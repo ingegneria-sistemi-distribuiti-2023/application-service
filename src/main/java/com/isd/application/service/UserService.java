@@ -1,89 +1,52 @@
 package com.isd.application.service;
 
-import com.isd.application.commons.OutcomeEnum;
-import com.isd.application.dto.BetDTO;
-import com.isd.application.dto.MatchDTO;
-import com.isd.application.dto.MatchGambledDTO;
-import com.isd.application.dto.UserDataDTO;
+import com.isd.application.dto.AuthenticationResponse;
+import com.isd.application.dto.LoginRequest;
+import com.isd.application.dto.UserRegistrationDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
-// TODO: Prendere come esempio. Quello che è gestito nel gambleController da mettere qui
-// TODO: Da realizzare per ogni microservizio chiamato da qst server
 @Service
 public class UserService {
     private final RestTemplate restTemplate;
 
-    @Value("${session.service.url}")
-    String sessionServiceUrl;
+    @Value("${auth.service.url}")
+    String authServiceUrl;
 
     public UserService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    public UserDataDTO getCurrentUserData(Integer userId) {
-        // code to call user-service to get user data
-        ResponseEntity<UserDataDTO> response = restTemplate.exchange(
-                sessionServiceUrl + "/api/sessions/" + userId, HttpMethod.GET, null,
-                new ParameterizedTypeReference<UserDataDTO>() {});
+    public ResponseEntity<AuthenticationResponse> getJwt(LoginRequest loginData) {
+        HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            return null;
+        ResponseEntity<AuthenticationResponse> request = restTemplate.exchange(
+                authServiceUrl + "/auth/jwt/login", HttpMethod.POST, req,
+                new ParameterizedTypeReference<AuthenticationResponse>() {});
+
+        if (request.getStatusCode() != HttpStatus.OK) {
+            HttpStatusCode stat = request.getStatusCode();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return response.getBody();
+        return request;
     }
 
-    public UserDataDTO addMatchToBet(UserDataDTO currentUserData, MatchDTO currentMatch, Long betId, OutcomeEnum outcome) throws Exception {
-        List<BetDTO> currentBets = currentUserData.getListOfBets();
-        BetDTO selectedBet = null;
+    public ResponseEntity<AuthenticationResponse> register(UserRegistrationDTO body) {
+        HttpEntity<UserRegistrationDTO> req = new HttpEntity<UserRegistrationDTO>(body);
 
-        // check if the match is already in the bet
-        for (BetDTO bet : currentBets) {
-            if (bet.getTs().equals(betId)) {
-                selectedBet = bet;
-                if (selectedBet.getMatchByMatchId(currentMatch.getId()) != null) {
-                    throw new Exception("Match already in bet");
-                }
-            }
-        }
+        ResponseEntity<AuthenticationResponse> request = restTemplate.exchange(
+                authServiceUrl + "/auth/jwt/register", HttpMethod.POST, req,
+                new ParameterizedTypeReference<AuthenticationResponse>() {});
 
-        if (selectedBet == null) {
-            throw new Exception("Bet id " + betId + " not found");
-        }
-
-        MatchGambledDTO newGamble = new MatchGambledDTO();
-        newGamble.setGameId(currentMatch.getId());
-        newGamble.setQuoteAtTimeOfBet(currentMatch.getPayout(outcome));
-        newGamble.setOutcome(outcome);
-        newGamble.setTs(System.currentTimeMillis());
-
-        currentUserData.removeBet(selectedBet);
-        selectedBet.addMatch(newGamble);
-        currentUserData.addBet(selectedBet);
-
-        return currentUserData;
-    }
-
-    public ResponseEntity<UserDataDTO> updateUserData(UserDataDTO userData) {
-        HttpEntity<UserDataDTO> request = new HttpEntity<>(userData);
-
-        ResponseEntity<UserDataDTO> updatedUserDataRequest = restTemplate.exchange(
-                sessionServiceUrl + "/api/sessions/", HttpMethod.POST, request,
-                new ParameterizedTypeReference<UserDataDTO>() {});
-        // verify status code of request
-        if (updatedUserDataRequest.getStatusCode() != HttpStatus.OK) {
+        if (request.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return updatedUserDataRequest;
+        return request;
     }
+
 
 }

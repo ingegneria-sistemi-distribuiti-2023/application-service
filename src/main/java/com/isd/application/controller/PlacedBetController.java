@@ -9,6 +9,7 @@ import com.isd.application.service.PlacedBetService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,8 +31,8 @@ public class PlacedBetController {
 
     @GetMapping(path = "/{id}")
     public @ResponseBody
-    PlacedBetDTO getPlacedbetById(@NotNull @PathVariable("id") Integer placedbetId) throws ResponseStatusException, Exception {
-        return placedBetService.getByBetId(placedbetId);
+    ResponseEntity<PlacedBetDTO> getPlacedbetById(@NotNull @PathVariable("id") Integer placedbetId) throws ResponseStatusException, Exception {
+        return new ResponseEntity<>(placedBetService.getByBetId(placedbetId), HttpStatus.OK);
     }
 
     @GetMapping(path = "/user/{id}")
