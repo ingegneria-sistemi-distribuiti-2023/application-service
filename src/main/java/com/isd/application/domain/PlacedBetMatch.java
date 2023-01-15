@@ -2,8 +2,13 @@ package com.isd.application.domain;
 
 import com.isd.application.commons.OutcomeEnum;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "matches")
 public class PlacedBetMatch {
@@ -23,54 +28,4 @@ public class PlacedBetMatch {
     private Double quote;
     private Long ts;
 
-    public PlacedBetMatch() {
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public PlacedBet getPlacedBet() {
-        return placedBet;
-    }
-
-    public void setPlacedBet(PlacedBet placedBet) {
-        this.placedBet = placedBet;
-    }
-
-    public Integer getMatchId() {
-        return matchId;
-    }
-
-    public void setMatchId(Integer matchId) {
-        this.matchId = matchId;
-    }
-
-    public OutcomeEnum getOutcome() {
-        return outcome;
-    }
-
-    public void setOutcome(OutcomeEnum outcome) {
-        this.outcome = outcome;
-    }
-
-    public Double getQuote() {
-        return quote;
-    }
-
-    public void setQuote(Double quote) {
-        this.quote = quote;
-    }
-
-    public Long getTs() {
-        return ts;
-    }
-
-    public void setTs(Long ts) {
-        this.ts = ts;
-    }
 }

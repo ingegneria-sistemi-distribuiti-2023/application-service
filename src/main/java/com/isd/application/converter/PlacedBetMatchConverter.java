@@ -11,7 +11,6 @@ public class PlacedBetMatchConverter {
     @Autowired
     static PlacedBetRepository rep;
 
-    // Necessario per salvare a database le informazioni del match associate ad una bettata
     public static PlacedBetMatch toEntity(MatchGambledDTO dto, PlacedBet placedBet) {
         PlacedBetMatch gambledMatch = new PlacedBetMatch();
 

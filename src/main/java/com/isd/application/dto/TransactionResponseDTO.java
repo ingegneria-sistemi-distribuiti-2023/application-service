@@ -13,7 +13,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionResponseDTO {
-
     private TransactionStatus status;
     private String message;
     private Date time;

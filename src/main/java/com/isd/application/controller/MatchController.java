@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/app/match")
-public class GameController {
+public class MatchController {
 
     @Autowired
     RestTemplate restTemplate;
@@ -26,7 +26,7 @@ public class GameController {
     String gameServiceUrl;
 
     @GetMapping(value="/")
-    public ResponseEntity<List<MatchDTO>> getAllMatches() throws Exception{
+    public ResponseEntity<List<MatchDTO>> getAllMatches() throws Exception {
         try {
             ResponseEntity<List<MatchDTO>> response = restTemplate.exchange(
                     gameServiceUrl + "/match/", HttpMethod.GET, null,

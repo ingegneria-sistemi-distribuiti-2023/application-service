@@ -1,7 +1,7 @@
 package com.isd.application.service;
 
-import com.isd.application.commons.CustomHttpResponse;
-import com.isd.application.commons.CustomServiceException;
+import com.isd.application.commons.error.CustomHttpResponse;
+import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.converter.PlacedBetConverter;
 import com.isd.application.converter.PlacedBetMatchConverter;
 import com.isd.application.domain.PlacedBet;
@@ -42,7 +42,7 @@ public class PlacedBetService {
         return bet;
     }
 
-    public PlacedBetDTO getByBetId(Integer betId) throws Exception{
+    public PlacedBetDTO getByBetId(Integer betId) throws Exception {
         PlacedBet entity = placedBetRepository.findOneById(betId);
 
         if (entity == null){
@@ -55,9 +55,8 @@ public class PlacedBetService {
         return dto;
     }
 
-    public List<PlacedBetDTO> getAllByUserId(Integer userId){
+    public List<PlacedBetDTO> getAllBetsByUserId(Integer userId) throws Exception {
         List<PlacedBetDTO> dto = new LinkedList<>();
-
         List<PlacedBet> entity = placedBetRepository.findAllByUserId(userId);
         PlacedBetConverter cnv = new PlacedBetConverter();
 

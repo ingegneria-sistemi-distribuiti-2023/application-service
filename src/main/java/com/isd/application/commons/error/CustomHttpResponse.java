@@ -1,4 +1,4 @@
-package com.isd.application.commons;
+package com.isd.application.commons.error;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
