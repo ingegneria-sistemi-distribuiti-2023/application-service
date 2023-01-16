@@ -19,6 +19,7 @@ public class ApiPathFilter extends OncePerRequestFilter {
     @Autowired
     private AuthenticationService auth;
 
+    private static final String HEADER_BEARER = "Bearer ";
     private static final String HEADER_AUTH = "Authorization";
     private static final String HEADER_USERNAME = "Username";
 
@@ -49,13 +50,15 @@ public class ApiPathFilter extends OncePerRequestFilter {
             return;
         }
 
-        jwt = jwt.substring("Bearer ".length());
+        jwt = jwt.substring(HEADER_BEARER.length());
 
         Boolean isValid = auth.validate(username, jwt);
 
         LOGGER.info("validation for : " + username + ": " + isValid.toString());
 
+        request.setAttribute(HEADER_AUTH, HEADER_BEARER + jwt);
 
+        filterChain.doFilter(request, response);
 
     }
 }

@@ -1,5 +1,6 @@
 package com.isd.application.service;
 
+import com.isd.application.auth.BearerTokenInterceptor;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.*;
@@ -94,10 +95,9 @@ public class AuthenticationService {
         return transaction.getBody();
     }
 
-    public TransactionResponseDTO deposit(TransactionRequestDTO req) throws Exception {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + token);
+    public TransactionResponseDTO deposit(TransactionRequestDTO req, String jwt) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
+        restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt)) ;
 
         ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
                 authServiceUrl + "/auth/transaction/deposit", HttpMethod.POST, request,

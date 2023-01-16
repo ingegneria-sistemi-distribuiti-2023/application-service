@@ -30,8 +30,8 @@ public class UserController {
     }
 
     @PostMapping(path="/user/deposit")
-    public @ResponseBody ResponseEntity<TransactionResponseDTO> deposit(@NotNull @RequestBody TransactionRequestDTO body) throws Exception {
-        return new ResponseEntity<>(authService.deposit(body), HttpStatus.OK);
+    public @ResponseBody ResponseEntity<TransactionResponseDTO> deposit(@NotNull @RequestBody TransactionRequestDTO body, @RequestHeader("Authorization") String bearerToken) throws Exception {
+        return new ResponseEntity<>(authService.deposit(body, bearerToken), HttpStatus.OK);
     }
 
 }
