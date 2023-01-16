@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/app/match")
+@RequestMapping("/app/public")
 public class MatchController {
     private final GameService gameService;
 
@@ -20,12 +20,12 @@ public class MatchController {
         this.gameService = gameService;
     }
 
-    @GetMapping(value="/")
+    @GetMapping(value="/match")
     public ResponseEntity<List<MatchDTO>> getAllMatches() throws Exception {
         return new ResponseEntity<>(gameService.getAllMatches(), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/match/{id}")
     public ResponseEntity<MatchDTO> getMatchDetails(@PathVariable("id") Integer gameId) throws Exception{
         return new ResponseEntity<>(gameService.getMatchDetail(gameId), HttpStatus.OK);
     }

@@ -3,6 +3,8 @@ package com.isd.application.service;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -14,6 +16,8 @@ public class AuthenticationService {
     private final RestTemplate restTemplate;
     @Value("${auth.service.url}")
     String authServiceUrl;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthenticationService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -58,7 +62,23 @@ public class AuthenticationService {
         return response.getBody();
     }
 
-    // TODO: validate del jwt, aggiungi quando API è pronta
+    public Boolean validate(String username, String jwt) throws Exception {
+
+        ValidationRequest body = new ValidationRequest(username, jwt);
+
+        HttpEntity<ValidationRequest> req = new HttpEntity<ValidationRequest>(body);
+
+        ResponseEntity<Boolean> response = restTemplate.exchange(
+                authServiceUrl + "/auth/jwt/validate", HttpMethod.POST, req,
+                new ParameterizedTypeReference<Boolean>() {});
+
+        // TODO: Dovrebbe ritornare unauth in base alla risposta
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new CustomServiceException(new CustomHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Failed"));
+        }
+
+        return response.getBody();
+    }
 
     public TransactionResponseDTO withdraw(TransactionRequestDTO req) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
@@ -74,10 +94,10 @@ public class AuthenticationService {
         return transaction.getBody();
     }
 
-    public TransactionResponseDTO deposit(TransactionRequestDTO req, String token) throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
-        HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req, headers);
+    public TransactionResponseDTO deposit(TransactionRequestDTO req) throws Exception {
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
 
         ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
                 authServiceUrl + "/auth/transaction/deposit", HttpMethod.POST, request,
