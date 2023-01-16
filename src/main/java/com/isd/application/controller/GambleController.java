@@ -26,8 +26,8 @@ public class GambleController {
     }
 
     @PostMapping(path="/place-bet")
-    public @ResponseBody ResponseEntity<PlacedBetDTO> placebet(@NotNull @RequestBody PlaceBetDTO body) throws Exception {
-        return new ResponseEntity<>(placedBetService.placeBet(body), HttpStatus.OK);
+    public @ResponseBody ResponseEntity<PlacedBetDTO> placebet(@NotNull @RequestBody PlaceBetDTO body, @RequestHeader("Authorization") String bearerToken) throws Exception {
+        return new ResponseEntity<>(placedBetService.placeBet(body, bearerToken), HttpStatus.OK);
     }
 
 

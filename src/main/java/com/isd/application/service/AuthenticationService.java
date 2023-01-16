@@ -1,6 +1,7 @@
 package com.isd.application.service;
 
 import com.isd.application.auth.BearerTokenInterceptor;
+import com.isd.application.auth.SecretKeyInterceptor;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.*;
@@ -24,7 +25,10 @@ public class AuthenticationService {
         this.restTemplate = restTemplate;
     }
 
-    public UserBalanceDTO getUserInfo(Integer userId) throws Exception {
+    public UserBalanceDTO getUserInfo(Integer userId, String jwt) throws Exception {
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt)) ;
+
         ResponseEntity<UserBalanceDTO> request = restTemplate.exchange(
                 authServiceUrl + "/auth/user/" + userId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<UserBalanceDTO>() {});
@@ -37,6 +41,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse getJwt(LoginRequest loginData) throws Exception {
         HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
 
         ResponseEntity<AuthenticationResponse> response = restTemplate.exchange(
                 authServiceUrl + "/auth/jwt/login", HttpMethod.POST, req,
@@ -66,6 +71,7 @@ public class AuthenticationService {
     public Boolean validate(String username, String jwt) throws Exception {
 
         ValidationRequest body = new ValidationRequest(username, jwt);
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
 
         HttpEntity<ValidationRequest> req = new HttpEntity<ValidationRequest>(body);
 

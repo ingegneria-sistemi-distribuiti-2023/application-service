@@ -16,14 +16,17 @@ import java.io.IOException;
 
 @Component
 public class ApiPathFilter extends OncePerRequestFilter {
-    @Autowired
     private AuthenticationService auth;
 
     private static final String HEADER_BEARER = "Bearer ";
     private static final String HEADER_AUTH = "Authorization";
     private static final String HEADER_USERNAME = "Username";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiPathFilter.class);
+
+    public ApiPathFilter(AuthenticationService auth) {
+        this.auth = auth;
+    }
 
     @SneakyThrows
     @Override

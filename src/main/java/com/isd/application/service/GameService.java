@@ -1,5 +1,6 @@
 package com.isd.application.service;
 
+import com.isd.application.auth.SecretKeyInterceptor;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.MatchDTO;
@@ -25,8 +26,10 @@ public class GameService {
     }
 
     public MatchDTO getMatchDetail(Integer matchId) throws Exception {
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+
         ResponseEntity<MatchDTO> matchRequest = restTemplate.exchange(
-                gameServiceUrl + "/match/" + matchId, HttpMethod.GET, null,
+                gameServiceUrl + "/game/match/" + matchId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<MatchDTO>() {});
         if (matchRequest.getStatusCode() != HttpStatus.OK) {
             throw new CustomServiceException(new CustomHttpResponse(HttpStatus.NOT_FOUND, "Match not founded"));
@@ -35,8 +38,10 @@ public class GameService {
     }
 
     public List<MatchDTO> getAllMatches() throws Exception {
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+
         ResponseEntity<List<MatchDTO>> response = restTemplate.exchange(
-                gameServiceUrl + "/match/", HttpMethod.GET, null,
+                gameServiceUrl + "/game/match/", HttpMethod.GET, null,
                 new ParameterizedTypeReference<List<MatchDTO>>() {});
         if (response.getStatusCode() != HttpStatus.OK){
             throw new CustomServiceException(new CustomHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something wrong happened"));
@@ -45,6 +50,8 @@ public class GameService {
     }
 
     public TeamHistoryDTO getHistoryOfTeam(Integer teamId) throws Exception {
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+
         ResponseEntity<TeamHistoryDTO> response = restTemplate.exchange(
                 gameServiceUrl + "/game/team/" + teamId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<TeamHistoryDTO>() {});

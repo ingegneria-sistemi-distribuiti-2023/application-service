@@ -79,7 +79,7 @@ public class PlacedBetService {
         return dto;
     }
 
-    public PlacedBetDTO placeBet(PlaceBetDTO dto) throws Exception {
+    public PlacedBetDTO placeBet(PlaceBetDTO dto, String jwt) throws Exception {
         PlacedBetDTO toRet = new PlacedBetDTO();
         toRet.setStatus(PlacedBetEnum.PROCESSING);
 
@@ -100,7 +100,7 @@ public class PlacedBetService {
             throw new CustomServiceException(new CustomHttpResponse(HttpStatus.BAD_REQUEST, "Invalid bet Id"));
         }
 
-        UserBalanceDTO user = authenticationService.getUserInfo(userId);
+        UserBalanceDTO user = authenticationService.getUserInfo(userId, jwt);
 
         if (user.getCashableAmount() < betValue){
             throw new CustomServiceException(new CustomHttpResponse(HttpStatus.BAD_REQUEST, "Cash amount less than betValue"));

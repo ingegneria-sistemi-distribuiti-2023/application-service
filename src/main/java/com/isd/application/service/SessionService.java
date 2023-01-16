@@ -1,5 +1,6 @@
 package com.isd.application.service;
 
+import com.isd.application.auth.SecretKeyInterceptor;
 import com.isd.application.commons.OutcomeEnum;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
@@ -31,8 +32,10 @@ public class SessionService {
 
     public UserDataDTO getCurrentUserData(Integer userId) throws Exception {
         // code to call user-service to get user data
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+
         ResponseEntity<UserDataDTO> response = restTemplate.exchange(
-                sessionServiceUrl + "/api/sessions/" + userId, HttpMethod.GET, null,
+                sessionServiceUrl + "/session/" + userId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<UserDataDTO>() {});
 
         if (response.getStatusCode() != HttpStatus.OK) {
@@ -74,9 +77,10 @@ public class SessionService {
 
     public UserDataDTO updateUserData(UserDataDTO userData) throws Exception{
         HttpEntity<UserDataDTO> request = new HttpEntity<>(userData);
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
 
         ResponseEntity<UserDataDTO> response = restTemplate.exchange(
-                sessionServiceUrl + "/api/sessions/", HttpMethod.POST, request,
+                sessionServiceUrl + "/session/", HttpMethod.POST, request,
                 new ParameterizedTypeReference<UserDataDTO>() {});
 
         if (response.getStatusCode() != HttpStatus.OK) {

@@ -25,11 +25,14 @@ server:
 auth:
   service:
     url: ${AUTHENTICATION_SERVICE_URL:http://localhost:8082}
+    secret: "pluto"
 
 game:
   service:
     url: ${GAME_SERVICE_URL:http://localhost:8081}
+    secret: paperino
 
 session:
   service:
     url: ${SESSION_SERVICE_URL:http://localhost:8084}
+    secret: pippo
