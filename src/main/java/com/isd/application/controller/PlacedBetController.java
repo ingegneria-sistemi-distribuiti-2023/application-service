@@ -19,8 +19,7 @@ public class PlacedBetController {
     }
 
     @GetMapping(path = "/{id}")
-    public @ResponseBody
-    ResponseEntity<PlacedBetDTO> getPlacedbetById(@NotNull @PathVariable("id") Integer placedbetId) throws Exception {
+    public @ResponseBody ResponseEntity<PlacedBetDTO> getPlacedbetById(@NotNull @PathVariable("id") Integer placedbetId) throws Exception {
         // TODO: bisogna modificare i body di response, fare vedere le squadre
         return new ResponseEntity<>(placedBetService.getByBetId(placedbetId), HttpStatus.OK);
     }

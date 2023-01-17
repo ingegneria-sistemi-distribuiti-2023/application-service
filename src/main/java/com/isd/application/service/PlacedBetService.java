@@ -51,6 +51,8 @@ public class PlacedBetService {
             placedBetMatchRepository.save(pbmcnv.toEntity(match, saved));
         }
 
+        bet.setId(saved.getId());
+
         return bet;
     }
 
@@ -264,10 +266,11 @@ public class PlacedBetService {
 
         currentUserData.removeBet(selectedBet);
         selectedBet.removeMatch(matchToRemove.getGameId());
-        currentUserData.addBet(selectedBet);
 
-        if (currentUserData.getListOfBets().size() == 1 && currentUserData.getListOfBets().get(0).getGames().size() == 0){
+        if (selectedBet.getGames().size() == 0){
             currentUserData.setListOfBets(new LinkedList<>());
+        } else {
+            currentUserData.addBet(selectedBet);
         }
 
         return sessionService.updateUserData(currentUserData);
