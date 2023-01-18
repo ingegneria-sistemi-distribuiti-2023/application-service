@@ -2,9 +2,10 @@ version: '3.3'
 
 services:
   application-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: khalld/application-service:latest
     restart: unless-stopped
     environment:
       GAME_SERVICE_URL: http://game-service:8081
