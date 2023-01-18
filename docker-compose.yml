@@ -22,6 +22,7 @@ services:
       - session-network
     volumes:
       - maven_packages:/root/.m2
+    container_name: application-service
 
 networks: 
   game-network:
