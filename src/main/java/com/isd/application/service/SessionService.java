@@ -30,6 +30,7 @@ public class SessionService {
         this.restTemplate = restTemplate;
     }
 
+    // TODO: CircuitBreaker
     public UserDataDTO getCurrentUserData(Integer userId) throws Exception {
         // code to call user-service to get user data
         restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
@@ -44,37 +45,7 @@ public class SessionService {
         return response.getBody();
     }
 
-    public UserDataDTO addMatchToBet(UserDataDTO currentUserData, MatchDTO currentMatch, Long betId, OutcomeEnum outcome) throws Exception {
-        List<BetDTO> currentBets = currentUserData.getListOfBets();
-        BetDTO selectedBet = null;
-
-        // check if the match is already in the bet
-        for (BetDTO bet : currentBets) {
-            if (bet.getTs().equals(betId)) {
-                selectedBet = bet;
-                if (selectedBet.getMatchByMatchId(currentMatch.getId()) != null) {
-                    throw new CustomServiceException(new CustomHttpResponse(HttpStatus.BAD_REQUEST, "Match already added"));
-                }
-            }
-        }
-
-        if (selectedBet == null) {
-            throw new CustomServiceException(new CustomHttpResponse(HttpStatus.BAD_REQUEST, "Bet id not founded"));
-        }
-
-        MatchGambledDTO newGamble = new MatchGambledDTO();
-        newGamble.setGameId(currentMatch.getId());
-        newGamble.setQuoteAtTimeOfBet(currentMatch.getPayout(outcome));
-        newGamble.setOutcome(outcome);
-        newGamble.setTs(System.currentTimeMillis());
-
-        currentUserData.removeBet(selectedBet);
-        selectedBet.addMatch(newGamble);
-        currentUserData.addBet(selectedBet);
-
-        return currentUserData;
-    }
-
+    // TODO: CircuitBreaker
     public UserDataDTO updateUserData(UserDataDTO userData) throws Exception{
         HttpEntity<UserDataDTO> request = new HttpEntity<>(userData);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;

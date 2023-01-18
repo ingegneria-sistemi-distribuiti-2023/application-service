@@ -25,6 +25,7 @@ public class GameService {
         this.restTemplate = restTemplate;
     }
 
+    // TODO: CircuitBreaker
     public MatchDTO getMatchDetail(Integer matchId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
 
@@ -37,6 +38,7 @@ public class GameService {
         return matchRequest.getBody();
     }
 
+    // TODO: CircuitBreaker
     public List<MatchDTO> getAllMatches() throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
 
@@ -49,6 +51,7 @@ public class GameService {
         return response.getBody();
     }
 
+    // TODO: CircuitBreaker
     public TeamHistoryDTO getHistoryOfTeam(Integer teamId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
 

@@ -5,6 +5,7 @@ import com.isd.application.auth.SecretKeyInterceptor;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.*;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,7 @@ public class AuthenticationService {
         return request.getBody();
     }
 
+    @CircuitBreaker(name = "getJwt", fallbackMethod = "getJwtFallback")
     public AuthenticationResponse getJwt(LoginRequest loginData) throws Exception {
         HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
@@ -54,6 +56,11 @@ public class AuthenticationService {
         return response.getBody();
     }
 
+    public AuthenticationResponse getJwtFallback(LoginRequest loginData, Throwable t) throws Exception {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is currently unavailable"));
+    }
+
+    // TODO: CircuitBreaker
     public AuthenticationResponse register(UserRegistrationDTO body) throws Exception {
         HttpEntity<UserRegistrationDTO> req = new HttpEntity<UserRegistrationDTO>(body);
 
@@ -68,6 +75,7 @@ public class AuthenticationService {
         return response.getBody();
     }
 
+    // TODO: CircuitBreaker
     public Boolean validate(String username, String jwt) throws Exception {
 
         ValidationRequest body = new ValidationRequest(username, jwt);
@@ -79,14 +87,14 @@ public class AuthenticationService {
                 authServiceUrl + "/auth/jwt/validate", HttpMethod.POST, req,
                 new ParameterizedTypeReference<Boolean>() {});
 
-        // TODO: Dovrebbe ritornare unauth in base alla risposta
         if (response.getStatusCode() != HttpStatus.OK) {
-            throw new CustomServiceException(new CustomHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Failed"));
+            throw new CustomServiceException(new CustomHttpResponse(HttpStatus.UNAUTHORIZED, "Failed"));
         }
 
         return response.getBody();
     }
 
+    // TODO: CircuitBreaker
     public TransactionResponseDTO withdraw(TransactionRequestDTO req) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
 
@@ -101,6 +109,7 @@ public class AuthenticationService {
         return transaction.getBody();
     }
 
+    // TODO: CircuitBreaker
     public TransactionResponseDTO deposit(TransactionRequestDTO req, String jwt) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
         restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt)) ;

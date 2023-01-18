@@ -70,6 +70,9 @@ public class PlacedBetService {
     }
 
     public List<PlacedBetDTO> getAllBetsByUserId(Integer userId) throws Exception {
+        if (userId == null){
+            throw new CustomServiceException(new CustomHttpResponse(HttpStatus.BAD_REQUEST, "UserId must be valorized"));
+        }
         List<PlacedBetDTO> dto = new LinkedList<>();
         List<PlacedBet> entity = placedBetRepository.findAllByUserId(userId);
         PlacedBetConverter cnv = new PlacedBetConverter();
