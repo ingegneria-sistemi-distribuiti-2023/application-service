@@ -19,6 +19,12 @@ public class AuthenticationService {
     private final RestTemplate restTemplate;
     @Value("${auth.service.url}")
     String authServiceUrl;
+    @Value("${auth.service.secret}")
+    private String SECRET_AUTH;
+    @Value("${game.service.secret}")
+    private String SECRET_GAME;
+    @Value("${session.service.secret}")
+    private String SECRET_SESSION;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
 
@@ -27,7 +33,7 @@ public class AuthenticationService {
     }
 
     public UserBalanceDTO getUserInfo(Integer userId, String jwt) throws Exception {
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
         restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt)) ;
 
         ResponseEntity<UserBalanceDTO> request = restTemplate.exchange(
@@ -43,7 +49,7 @@ public class AuthenticationService {
     @CircuitBreaker(name = "getJwt", fallbackMethod = "getJwtFallback")
     public AuthenticationResponse getJwt(LoginRequest loginData) throws Exception {
         HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<AuthenticationResponse> response = restTemplate.exchange(
                 authServiceUrl + "/auth/jwt/login", HttpMethod.POST, req,
@@ -63,6 +69,7 @@ public class AuthenticationService {
     // TODO: CircuitBreaker
     public AuthenticationResponse register(UserRegistrationDTO body) throws Exception {
         HttpEntity<UserRegistrationDTO> req = new HttpEntity<UserRegistrationDTO>(body);
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<AuthenticationResponse> response = restTemplate.exchange(
                 authServiceUrl + "/auth/jwt/register", HttpMethod.POST, req,
@@ -79,7 +86,7 @@ public class AuthenticationService {
     public Boolean validate(String username, String jwt) throws Exception {
 
         ValidationRequest body = new ValidationRequest(username, jwt);
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         HttpEntity<ValidationRequest> req = new HttpEntity<ValidationRequest>(body);
 
@@ -97,6 +104,7 @@ public class AuthenticationService {
     // TODO: CircuitBreaker
     public TransactionResponseDTO withdraw(TransactionRequestDTO req) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
                 authServiceUrl + "/auth/transaction/withdraw", HttpMethod.POST, request,

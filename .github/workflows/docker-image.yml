@@ -23,6 +23,14 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+        
+    - name: Run tests
+      run: mvn test --file pom.xml
+
+    - name: Check test results
+      if: failure()
+      run: exit 1
+
     - name: Build with Maven
       run: mvn package -Dmaven.test.skip=true --file pom.xml
 

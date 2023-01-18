@@ -1,6 +1,6 @@
 package com.isd.application.auth;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.NoArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -10,22 +10,22 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-
+@NoArgsConstructor
 @Configuration
 public class SecretKeyInterceptor implements ClientHttpRequestInterceptor  {
-//    @Value("${auth.service.secret}")
-    private String SECRET_AUTH = "pluto";
-//    @Value("${game.service.secret}")
-    private String SECRET_GAME = "paperino";
-//    @Value("${session.service.secret}")
-    private String SECRET_SESSION = "pippo";
+    private String SECRET_AUTH;
+    private String SECRET_GAME;
+    private String SECRET_SESSION;
 
     private static final String AUTH = "/auth/";
     private static final String GAME = "/game/";
     private static final String SESSION = "/session";
     private final static String SECRET_HEADER = "Secret-Key";
 
-    public SecretKeyInterceptor() {
+    public SecretKeyInterceptor(String sAuth, String sGame, String sSession) {
+        this.SECRET_AUTH = sAuth;
+        this.SECRET_GAME = sGame;
+        this.SECRET_SESSION = sSession;
     }
 
     @Override

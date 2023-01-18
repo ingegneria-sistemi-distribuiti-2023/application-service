@@ -20,6 +20,12 @@ public class GameService {
     private final RestTemplate restTemplate;
     @Value("${game.service.url}")
     String gameServiceUrl;
+    @Value("${auth.service.secret}")
+    private String SECRET_AUTH;
+    @Value("${game.service.secret}")
+    private String SECRET_GAME;
+    @Value("${session.service.secret}")
+    private String SECRET_SESSION;
 
     public GameService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -27,7 +33,7 @@ public class GameService {
 
     // TODO: CircuitBreaker
     public MatchDTO getMatchDetail(Integer matchId) throws Exception {
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<MatchDTO> matchRequest = restTemplate.exchange(
                 gameServiceUrl + "/game/match/" + matchId, HttpMethod.GET, null,
@@ -40,7 +46,7 @@ public class GameService {
 
     // TODO: CircuitBreaker
     public List<MatchDTO> getAllMatches() throws Exception {
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<List<MatchDTO>> response = restTemplate.exchange(
                 gameServiceUrl + "/game/match/", HttpMethod.GET, null,
@@ -53,7 +59,7 @@ public class GameService {
 
     // TODO: CircuitBreaker
     public TeamHistoryDTO getHistoryOfTeam(Integer teamId) throws Exception {
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<TeamHistoryDTO> response = restTemplate.exchange(
                 gameServiceUrl + "/game/team/" + teamId, HttpMethod.GET, null,

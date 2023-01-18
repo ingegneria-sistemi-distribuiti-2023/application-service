@@ -22,7 +22,12 @@ import java.util.List;
 @Service
 public class SessionService {
     private final RestTemplate restTemplate;
-
+    @Value("${auth.service.secret}")
+    private String SECRET_AUTH;
+    @Value("${game.service.secret}")
+    private String SECRET_GAME;
+    @Value("${session.service.secret}")
+    private String SECRET_SESSION;
     @Value("${session.service.url}")
     String sessionServiceUrl;
 
@@ -33,7 +38,7 @@ public class SessionService {
     // TODO: CircuitBreaker
     public UserDataDTO getCurrentUserData(Integer userId) throws Exception {
         // code to call user-service to get user data
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<UserDataDTO> response = restTemplate.exchange(
                 sessionServiceUrl + "/session/" + userId, HttpMethod.GET, null,
@@ -48,7 +53,7 @@ public class SessionService {
     // TODO: CircuitBreaker
     public UserDataDTO updateUserData(UserDataDTO userData) throws Exception{
         HttpEntity<UserDataDTO> request = new HttpEntity<>(userData);
-        restTemplate.getInterceptors().add(new SecretKeyInterceptor()) ;
+        restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
         ResponseEntity<UserDataDTO> response = restTemplate.exchange(
                 sessionServiceUrl + "/session/", HttpMethod.POST, request,
