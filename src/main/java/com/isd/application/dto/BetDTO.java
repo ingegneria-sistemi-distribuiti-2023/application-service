@@ -19,7 +19,7 @@ public class BetDTO implements Serializable{
     private CurrencyEnum currency;
     private List<MatchGambledDTO> games;
     private Long ts;
-    private static int MAX_MATCH = 3;
+    public static int MAX_MATCH = 3;
 
     public void addMatch(MatchGambledDTO gamble) throws Exception {
         // Check if the number of bets in the list is less than or equal to 3
@@ -56,8 +56,10 @@ public class BetDTO implements Serializable{
 
     public Double getPayout(){
         Double payout = 0.0;
-        for (MatchGambledDTO match: getGames()){
-            payout += match.getQuoteAtTimeOfBet();
+        if (getGames() != null && getGames().size() > 0){
+            for (MatchGambledDTO match: getGames()){
+                payout += match.getQuoteAtTimeOfBet();
+            }
         }
         return payout;
     }
