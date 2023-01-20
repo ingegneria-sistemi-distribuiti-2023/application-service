@@ -33,8 +33,8 @@ public class GameService {
     @Value("${session.service.secret}")
     private String SECRET_SESSION;
 
-    @CircuitBreaker(name = "gameService", fallbackMethod = "getMatchDetailFallback")
-    @Retry(name = "gameService")
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getMatchDetailFallback")
+    @Retry(name = "circuitBreaker")
     public MatchDTO getMatchDetail(Integer matchId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
@@ -51,8 +51,8 @@ public class GameService {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
-    @CircuitBreaker(name = "gameService", fallbackMethod = "getAllMatchesFallback")
-    @Retry(name = "gameService")
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getAllMatchesFallback")
+    @Retry(name = "circuitBreaker")
     public List<MatchDTO> getAllMatches() throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
@@ -69,8 +69,8 @@ public class GameService {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
-    @CircuitBreaker(name = "gameService", fallbackMethod = "getHistoryOfTeamFallback")
-    @Retry(name = "gameService")
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getHistoryOfTeamFallback")
+    @Retry(name = "circuitBreaker")
     public TeamHistoryDTO getHistoryOfTeam(Integer teamId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
         ResponseEntity<TeamHistoryDTO> response = restTemplate.exchange(

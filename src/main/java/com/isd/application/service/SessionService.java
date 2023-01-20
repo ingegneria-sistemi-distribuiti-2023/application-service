@@ -5,6 +5,9 @@ import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.UserDataDTO;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,7 +32,8 @@ public class SessionService {
     String sessionServiceUrl;
 
 
-    // TODO: CircuitBreaker
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getCurrentUserDataFallback")
+    @Retry(name = "circuitBreaker")
     public UserDataDTO getCurrentUserData(Integer userId) throws Exception {
         // code to call user-service to get user data
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -43,8 +47,12 @@ public class SessionService {
         }
         return response.getBody();
     }
+    public UserDataDTO getCurrentUserDataFallback(Integer userId, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
 
-    // TODO: CircuitBreaker
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "updateUserDataFallback")
+    @Retry(name = "circuitBreaker")
     public UserDataDTO updateUserData(UserDataDTO userData) throws Exception{
         HttpEntity<UserDataDTO> request = new HttpEntity<>(userData);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -59,5 +67,7 @@ public class SessionService {
 
         return response.getBody();
     }
-
+    public UserDataDTO updateUserDataFallback(UserDataDTO userData, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
 }

@@ -53,7 +53,7 @@ resilience4j:
   circuitbreaker:
     circuit-breaker-aspect-order: 1 # the order of the circuit breaker aspect, in this way it will be executed before the retry aspect
     instances:
-      gameService:
+      circuitBreaker:
         registerHealthIndicator: true
         eventConsumerBufferSize: 10
         failureRateThreshold: 50 # if more than 50% of the calls fail, the circuit will be open
@@ -67,6 +67,6 @@ resilience4j:
   retry:
     retry-aspect-order: 2 # the order of the retry aspect, in this way it will be executed before the circuit breaker aspect
     instances:
-      gameService:
+      circuitBreaker:
         maxAttempts: 3 # the number of retries
         waitDuration: 1s # the time between retries

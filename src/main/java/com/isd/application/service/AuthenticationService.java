@@ -5,6 +5,10 @@ import com.isd.application.auth.SecretKeyInterceptor;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.*;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +33,8 @@ public class AuthenticationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
 
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getUserInfoFallback")
+    @Retry(name = "circuitBreaker")
     public UserBalanceDTO getUserInfo(Integer userId, String jwt) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
         restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt)) ;
@@ -42,7 +48,12 @@ public class AuthenticationService {
         }
         return request.getBody();
     }
+    public AuthenticationResponse getUserInfoFallback(LoginRequest loginData, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
 
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getJwtFallback")
+    @Retry(name = "circuitBreaker")
     public AuthenticationResponse getJwt(LoginRequest loginData) throws Exception {
         HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -57,8 +68,12 @@ public class AuthenticationService {
 
         return response.getBody();
     }
+    public AuthenticationResponse getJwtFallback(LoginRequest loginData, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
 
-    // TODO: CircuitBreaker
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "registerFallback")
+    @Retry(name = "circuitBreaker")
     public AuthenticationResponse register(UserRegistrationDTO body) throws Exception {
         HttpEntity<UserRegistrationDTO> req = new HttpEntity<UserRegistrationDTO>(body);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -73,8 +88,12 @@ public class AuthenticationService {
 
         return response.getBody();
     }
+    public AuthenticationResponse registerFallback(UserRegistrationDTO body, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
 
-    // TODO: CircuitBreaker
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "validateFallback")
+    @Retry(name = "circuitBreaker")
     public Boolean validate(String username, String jwt) throws Exception {
 
         ValidationRequest body = new ValidationRequest(username, jwt);
@@ -92,8 +111,12 @@ public class AuthenticationService {
 
         return response.getBody();
     }
+    public Boolean validateFallback(String username, String jwt, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
 
-    // TODO: CircuitBreaker
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "withdrawFallback")
+    @Retry(name = "circuitBreaker")
     public TransactionResponseDTO withdraw(TransactionRequestDTO req) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -108,11 +131,15 @@ public class AuthenticationService {
 
         return transaction.getBody();
     }
+    public TransactionResponseDTO withdrawFallback(TransactionRequestDTO req, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
 
-    // TODO: CircuitBreaker
+    @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "depositFallback")
+    @Retry(name = "circuitBreaker")
     public TransactionResponseDTO deposit(TransactionRequestDTO req, String jwt) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
-        restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt)) ;
+        restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt));
 
         ResponseEntity<TransactionResponseDTO> transaction = restTemplate.exchange(
                 authServiceUrl + "/auth/transaction/deposit", HttpMethod.POST, request,
@@ -123,5 +150,8 @@ public class AuthenticationService {
         }
 
         return transaction.getBody();
+    }
+    public TransactionResponseDTO depositFallback(TransactionRequestDTO req, String jwt, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 }
