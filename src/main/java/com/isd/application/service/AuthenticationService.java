@@ -5,9 +5,9 @@ import com.isd.application.auth.SecretKeyInterceptor;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.*;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -16,7 +16,8 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AuthenticationService {
-    private final RestTemplate restTemplate;
+    @Autowired
+    RestTemplate restTemplate;
     @Value("${auth.service.url}")
     String authServiceUrl;
     @Value("${auth.service.secret}")
@@ -27,10 +28,6 @@ public class AuthenticationService {
     private String SECRET_SESSION;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
-
-    public AuthenticationService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     public UserBalanceDTO getUserInfo(Integer userId, String jwt) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -46,7 +43,6 @@ public class AuthenticationService {
         return request.getBody();
     }
 
-    @CircuitBreaker(name = "getJwt", fallbackMethod = "getJwtFallback")
     public AuthenticationResponse getJwt(LoginRequest loginData) throws Exception {
         HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -60,10 +56,6 @@ public class AuthenticationService {
         }
 
         return response.getBody();
-    }
-
-    public AuthenticationResponse getJwtFallback(LoginRequest loginData, Throwable t) throws Exception {
-        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is currently unavailable"));
     }
 
     // TODO: CircuitBreaker

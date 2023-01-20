@@ -36,3 +36,37 @@ session:
   service:
     url: ${SESSION_SERVICE_URL:http://localhost:8084}
     secret: pippo
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health # expose health endpoint
+  endpoint:
+    health:
+      show-details: always # show details of health endpoint
+
+resilience4j:
+  circuitbreaker:
+    circuit-breaker-aspect-order: 1 # the order of the circuit breaker aspect, in this way it will be executed before the retry aspect
+    instances:
+      gameService:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50 # if more than 50% of the calls fail, the circuit will be open
+        minimumNumberOfCalls: 3 # if less than 3 calls are recorded, the circuit will not be open
+        automaticTransitionFromOpenToHalfOpenEnabled: true # if the circuit is open, it will be half open after 5 seconds
+        waitDurationInOpenState: 5s # the time the circuit will be half open
+        permittedNumberOfCallsInHalfOpenState: 3 # the number of calls that will be allowed in half open state
+        slidingWindowSize: 10 # the number of calls that will be recorded
+        slidingWindowType: COUNT_BASED # the type of the sliding window
+
+  retry:
+    retry-aspect-order: 2 # the order of the retry aspect, in this way it will be executed before the circuit breaker aspect
+    instances:
+      gameService:
+        maxAttempts: 3 # the number of retries
+        waitDuration: 1s # the time between retries

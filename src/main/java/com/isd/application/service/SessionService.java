@@ -1,13 +1,11 @@
 package com.isd.application.service;
 
 import com.isd.application.auth.SecretKeyInterceptor;
-import com.isd.application.commons.OutcomeEnum;
 import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
-import com.isd.application.dto.BetDTO;
-import com.isd.application.dto.MatchDTO;
-import com.isd.application.dto.MatchGambledDTO;
 import com.isd.application.dto.UserDataDTO;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -17,11 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
 @Service
 public class SessionService {
-    private final RestTemplate restTemplate;
+    @Autowired
+    RestTemplate restTemplate;
     @Value("${auth.service.secret}")
     private String SECRET_AUTH;
     @Value("${game.service.secret}")
@@ -31,9 +28,6 @@ public class SessionService {
     @Value("${session.service.url}")
     String sessionServiceUrl;
 
-    public SessionService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     // TODO: CircuitBreaker
     public UserDataDTO getCurrentUserData(Integer userId) throws Exception {

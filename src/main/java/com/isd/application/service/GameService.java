@@ -5,6 +5,11 @@ import com.isd.application.commons.error.CustomHttpResponse;
 import com.isd.application.commons.error.CustomServiceException;
 import com.isd.application.dto.MatchDTO;
 import com.isd.application.dto.TeamHistoryDTO;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -17,7 +22,8 @@ import java.util.List;
 
 @Service
 public class GameService {
-    private final RestTemplate restTemplate;
+    @Autowired
+    RestTemplate restTemplate;
     @Value("${game.service.url}")
     String gameServiceUrl;
     @Value("${auth.service.secret}")
@@ -27,11 +33,8 @@ public class GameService {
     @Value("${session.service.secret}")
     private String SECRET_SESSION;
 
-    public GameService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
-
-    // TODO: CircuitBreaker
+    @CircuitBreaker(name = "gameService", fallbackMethod = "getMatchDetailFallback")
+    @Retry(name = "gameService")
     public MatchDTO getMatchDetail(Integer matchId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
@@ -44,7 +47,12 @@ public class GameService {
         return matchRequest.getBody();
     }
 
-    // TODO: CircuitBreaker
+    public MatchDTO getMatchDetailFallback(Integer matchId, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
+
+    @CircuitBreaker(name = "gameService", fallbackMethod = "getAllMatchesFallback")
+    @Retry(name = "gameService")
     public List<MatchDTO> getAllMatches() throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
@@ -57,10 +65,14 @@ public class GameService {
         return response.getBody();
     }
 
-    // TODO: CircuitBreaker
+    public List<MatchDTO> getAllMatchesFallback(Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
+    }
+
+    @CircuitBreaker(name = "gameService", fallbackMethod = "getHistoryOfTeamFallback")
+    @Retry(name = "gameService")
     public TeamHistoryDTO getHistoryOfTeam(Integer teamId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
-
         ResponseEntity<TeamHistoryDTO> response = restTemplate.exchange(
                 gameServiceUrl + "/game/team/" + teamId, HttpMethod.GET, null,
                 new ParameterizedTypeReference<TeamHistoryDTO>() {});
@@ -68,5 +80,9 @@ public class GameService {
             throw new CustomServiceException(new CustomHttpResponse(HttpStatus.NOT_FOUND, "Match not founded"));
         }
         return response.getBody();
+    }
+
+    public TeamHistoryDTO getHistoryOfTeamFallback(Integer teamId, Exception e) throws CustomServiceException {
+        throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 }

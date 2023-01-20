@@ -35,7 +35,7 @@ public class ApiPathFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
 
-        if (path.startsWith("/app/public")){
+        if (path.startsWith("/app/public") || path.equals("/actuator/health")){
             // Non bisogna gestire la get dell'Header
             filterChain.doFilter(request, response);
             return;
