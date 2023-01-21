@@ -69,4 +69,4 @@ resilience4j:
     instances:
       circuitBreaker:
         maxAttempts: 3 # the number of retries
-        waitDuration: 1s # the time between retries
+        waitDuration: 5s # the time between retries
