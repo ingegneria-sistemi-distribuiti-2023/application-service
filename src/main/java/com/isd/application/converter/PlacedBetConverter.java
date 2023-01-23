@@ -24,10 +24,11 @@ public class PlacedBetConverter {
         List<MatchGambledDTO> matchesDto = new LinkedList<>();
 
         PlacedBetMatchConverter cnvMatch = new PlacedBetMatchConverter();
-
-        for (PlacedBetMatch match: placedBet.getMatches()){
-            payout+= match.getQuote();
-            matchesDto.add(cnvMatch.toDTO(match));
+        if (placedBet.getMatches() != null && placedBet.getMatches().size() > 0) {
+            for (PlacedBetMatch match: placedBet.getMatches()){
+                payout+= match.getQuote();
+                matchesDto.add(cnvMatch.toDTO(match));
+            }
         }
 
         dto.setGambledMatches(matchesDto);

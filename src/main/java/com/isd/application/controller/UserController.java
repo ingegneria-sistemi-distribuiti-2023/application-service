@@ -4,6 +4,7 @@ import com.isd.application.dto.*;
 import com.isd.application.service.AuthenticationService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +34,8 @@ public class UserController {
 
     @PostMapping(path="/user/deposit")
     @SecurityRequirement(name = "bearerAuth")
-    public @ResponseBody ResponseEntity<TransactionResponseDTO> deposit(@NotNull @RequestBody TransactionRequestDTO body, @RequestHeader("Authorization") String authorization, @RequestHeader("Username") String username) throws Exception {
-        return new ResponseEntity<>(authService.deposit(body, authorization), HttpStatus.OK);
+    public @ResponseBody ResponseEntity<TransactionResponseDTO> deposit(@NotNull @RequestBody TransactionRequestDTO body,  @RequestHeader("Username") String username, HttpServletRequest request) throws Exception {
+        return new ResponseEntity<>(authService.deposit(body, request.getHeader("Authorization")), HttpStatus.OK);
     }
 
 }

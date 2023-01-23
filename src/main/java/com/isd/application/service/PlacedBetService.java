@@ -56,6 +56,11 @@ public class PlacedBetService {
         return bet;
     }
 
+    public PlacedBetDTO updatePlacedBet(PlacedBetDTO bet){
+        PlacedBet saved = placedBetRepository.save(new PlacedBetConverter().toEntity(bet));
+        return new PlacedBetConverter().toDTO(saved);
+    }
+
     public PlacedBetDTO getByBetId(Integer betId) throws Exception {
         PlacedBet entity = placedBetRepository.findOneById(betId);
 
@@ -148,7 +153,7 @@ public class PlacedBetService {
 
         toRet.setStatus(PlacedBetEnum.PLAYED);
 
-        this.save(toRet);
+        this.updatePlacedBet(toRet);
 
         // se va tutto bene, rimuovi dalla sessione esiste la schedina
         currentSession.removeBet(selectedBet);

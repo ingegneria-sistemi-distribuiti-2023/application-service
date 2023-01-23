@@ -22,7 +22,7 @@ public class PlacedBetController {
 
     @GetMapping(path = "/{id}")
     @SecurityRequirement(name = "bearerAuth")
-    public @ResponseBody ResponseEntity<PlacedBetDTO> getPlacedbetById(@NotNull @PathVariable("id") Integer placedbetId) throws Exception {
+    public @ResponseBody ResponseEntity<PlacedBetDTO> getPlacedbetById(@NotNull @PathVariable("id") Integer placedbetId, @RequestHeader("Username") String username) throws Exception {
         return new ResponseEntity<>(placedBetService.getByBetId(placedbetId), HttpStatus.OK);
     }
 
@@ -31,7 +31,7 @@ public class PlacedBetController {
      * */
     @GetMapping(path = "/user/{id}")
     @SecurityRequirement(name = "bearerAuth")
-    public @ResponseBody ResponseEntity<List<PlacedBetDTO>> getAllPlacedbetByUserid(@NotNull @PathVariable("id") Integer userId) throws Exception {
+    public @ResponseBody ResponseEntity<List<PlacedBetDTO>> getAllPlacedbetByUserid(@NotNull @PathVariable("id") Integer userId, @RequestHeader("Username") String username) throws Exception {
         return new ResponseEntity<>(placedBetService.getAllBetsByUserId(userId), HttpStatus.OK);
     }
 }
