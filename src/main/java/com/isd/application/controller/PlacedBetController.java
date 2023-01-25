@@ -5,6 +5,7 @@ import com.isd.application.service.PlacedBetService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/app/placedbet")
+@RequiredArgsConstructor
 public class PlacedBetController {
     private final PlacedBetService placedBetService;
-
-    public PlacedBetController(PlacedBetService placedBetService) {
-        this.placedBetService = placedBetService;
-    }
 
     @GetMapping(path = "/{id}")
     @SecurityRequirement(name = "bearerAuth")

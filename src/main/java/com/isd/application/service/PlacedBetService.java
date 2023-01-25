@@ -235,8 +235,6 @@ public class PlacedBetService {
             MatchGambledDTO newGamble = new MatchGambledDTO();
             newGamble.setGameId(gameId);
 
-            newGamble.setGameId(gameId);
-
             newGamble.setQuoteAtTimeOfBet(currentMatch.getPayout(outcome));
 
             newGamble.setOutcome(dto.getOutcome());

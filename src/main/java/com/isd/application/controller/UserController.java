@@ -6,6 +6,7 @@ import com.isd.application.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -13,14 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/app")
+@RequiredArgsConstructor
 public class UserController {
     private final AuthenticationService authService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-
-    public UserController(AuthenticationService as) {
-        this.authService = as;
-    }
 
     @PostMapping(path="/public/register")
     public @ResponseBody ResponseEntity<AuthenticationResponse> register(@NotNull @RequestBody UserRegistrationDTO body) throws Exception {
