@@ -33,7 +33,7 @@ public class SessionService {
 
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getCurrentUserDataFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public UserDataDTO getCurrentUserData(Integer userId) throws Exception {
         // code to call user-service to get user data
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -52,7 +52,7 @@ public class SessionService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "updateUserDataFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public UserDataDTO updateUserData(UserDataDTO userData) throws Exception{
         HttpEntity<UserDataDTO> request = new HttpEntity<>(userData);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;

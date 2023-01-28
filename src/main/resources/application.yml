@@ -67,6 +67,6 @@ resilience4j:
   retry:
     retry-aspect-order: 2 # the order of the retry aspect, in this way it will be executed before the circuit breaker aspect
     instances:
-      circuitBreaker:
+      retryService:
         maxAttempts: 3 # the number of retries
         waitDuration: 5s # the time between retries

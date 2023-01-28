@@ -34,7 +34,7 @@ public class GameService {
     private String SECRET_SESSION;
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getMatchDetailFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public MatchDTO getMatchDetail(Integer matchId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
@@ -52,7 +52,7 @@ public class GameService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getAllMatchesFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public List<MatchDTO> getAllMatches() throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
 
@@ -70,7 +70,7 @@ public class GameService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getHistoryOfTeamFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public TeamHistoryDTO getHistoryOfTeam(Integer teamId) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
         ResponseEntity<TeamHistoryDTO> response = restTemplate.exchange(

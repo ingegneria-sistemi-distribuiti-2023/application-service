@@ -34,7 +34,7 @@ public class AuthenticationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getUserInfoFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public UserBalanceDTO getUserInfo(Integer userId, String jwt) throws Exception {
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
         restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt)) ;
@@ -53,7 +53,7 @@ public class AuthenticationService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "getJwtFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public AuthenticationResponse getJwt(LoginRequest loginData) throws Exception {
         HttpEntity<LoginRequest> req = new HttpEntity<LoginRequest>(loginData);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -73,7 +73,7 @@ public class AuthenticationService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "registerFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public AuthenticationResponse register(UserRegistrationDTO body) throws Exception {
         HttpEntity<UserRegistrationDTO> req = new HttpEntity<UserRegistrationDTO>(body);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -93,7 +93,7 @@ public class AuthenticationService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "validateFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public Boolean validate(String username, String jwt) throws Exception {
 
         ValidationRequest body = new ValidationRequest(username, jwt);
@@ -116,7 +116,7 @@ public class AuthenticationService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "withdrawFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public TransactionResponseDTO withdraw(TransactionRequestDTO req) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
         restTemplate.getInterceptors().add(new SecretKeyInterceptor(SECRET_AUTH, SECRET_GAME, SECRET_SESSION)) ;
@@ -136,7 +136,7 @@ public class AuthenticationService {
     }
 
     @CircuitBreaker(name = "circuitBreaker", fallbackMethod = "depositFallback")
-    @Retry(name = "circuitBreaker")
+    @Retry(name = "retryService")
     public TransactionResponseDTO deposit(TransactionRequestDTO req, String jwt) throws Exception {
         HttpEntity<TransactionRequestDTO> request = new HttpEntity<>(req);
         restTemplate.getInterceptors().add(new BearerTokenInterceptor(jwt));
