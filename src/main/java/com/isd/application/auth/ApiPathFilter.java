@@ -13,6 +13,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/*
+ * A Filter can be called either before or after servlet execution. 
+ * When a request is dispatched to a servlet, the RequestDispatcher may forward it to another servlet.
+ * Is possible using OncePerRequestFilter to ensure that this specific filter, used to handle protection of API, is executed
+ * only once for a given request.
+ */
 @Component
 public class ApiPathFilter extends OncePerRequestFilter {
     private AuthenticationService auth;
@@ -35,11 +41,10 @@ public class ApiPathFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         if (path.startsWith("/app/public") || path.contains("swagger") || path.equals("/v3/api-docs")  || path.equals("/favicon.ico") || path.equals("/actuator/health") ){
-            // Non bisogna gestire la get dell'Header
             filterChain.doFilter(request, response);
             return;
         } else if (!path.startsWith("/app/")){
-            // Gestire i token
+            // handle token in protected API's path
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
@@ -56,7 +61,7 @@ public class ApiPathFilter extends OncePerRequestFilter {
 
         Boolean isValid = auth.validate(username, jwt);
 
-        LOGGER.info("validation for : " + username + ": " + isValid.toString());
+        LOGGER.debug("JWT for : " + username + ": " + isValid.toString());
 
         request.setAttribute(HEADER_AUTH, HEADER_BEARER + jwt);
 

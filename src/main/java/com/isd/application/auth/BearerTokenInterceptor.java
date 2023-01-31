@@ -9,6 +9,9 @@ import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
 
+/**
+ * Allow to add additional 'Authorization' in RestTemplate's Header
+**/
 public class BearerTokenInterceptor implements ClientHttpRequestInterceptor {
     private final String token;
 

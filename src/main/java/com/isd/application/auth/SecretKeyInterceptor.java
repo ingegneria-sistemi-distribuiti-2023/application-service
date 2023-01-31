@@ -9,6 +9,11 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
+
+
+/**
+ * Allow to add additional 'Secret-Key' in RestTemplate's Header
+ **/
 @NoArgsConstructor
 @Configuration
 public class SecretKeyInterceptor implements ClientHttpRequestInterceptor  {
