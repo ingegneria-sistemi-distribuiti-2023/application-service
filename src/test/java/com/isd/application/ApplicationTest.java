@@ -11,7 +11,6 @@ import com.isd.application.dto.*;
 import com.isd.application.repository.PlacedBetMatchRepository;
 import com.isd.application.repository.PlacedBetRepository;
 import com.isd.application.service.AuthenticationService;
-import com.isd.application.service.GameService;
 import com.isd.application.service.PlacedBetService;
 import com.isd.application.service.SessionService;
 import org.junit.Before;
@@ -126,6 +125,9 @@ public class ApplicationTest {
         return placedBetMatch;
     }
 
+    /**
+     * this method is called before each test, it generates the dummy data used
+     */
     @Before
     public void setUp() {
         currentSession = generateDummyData();
@@ -140,6 +142,9 @@ public class ApplicationTest {
         userBalance.setCashableAmount(0f);
     }
 
+    /**
+     * this method tests the PlacedBetService's save method
+     */
     @Test
     public void test_saveShouldReturnPlacedbetDtoFromService() {
         when(placedBetRepository.save(any(PlacedBet.class))).thenReturn(placedBet);
@@ -154,6 +159,10 @@ public class ApplicationTest {
         assertEquals(placedBet.getId(), placedBetDTO.getId());
     }
 
+    /**
+     * this method tests the PlacedBetService's getAllBetsByUserId method
+     * @throws Exception
+     */
     @Test
     public void test_getAllBetsByUserIdShouldReturnSamePlacebetService() throws Exception {
         List<PlacedBet> placedBets = new LinkedList<>();
@@ -176,7 +185,10 @@ public class ApplicationTest {
         assertEquals(placedBets.get(0), placedBet);
     }
 
-//    Non può essere testato perché ha bisogno dell'authenticationService
+    /**
+     * this method tests the PlacedBetService's placeBet method, it should return a played status
+     * @throws Exception
+     */
      @Test
      public void test_placeBetShouldReturnPlayedStatus() throws Exception {
          when(authenticationService.getUserInfo(currentSession.getUserId(), "jwt")).thenReturn(userBalance);
@@ -216,7 +228,10 @@ public class ApplicationTest {
          assertEquals(PlacedBetEnum.PLAYED, result.getStatus());
      }
 
-
+    /**
+     * this method tests the PlacedBetService's placeBet method when the bet value is less then 2
+     * @throws Exception
+     */
     @Test(expected = CustomServiceException.class)
     public void test_placeBetShouldReturnErrorWhenBetValueIsLessThen2() throws Exception {
         PlaceBetDTO dto = new PlaceBetDTO();
@@ -230,6 +245,10 @@ public class ApplicationTest {
         assertEquals(placedBet.getUserId(), dto.getUserId());
     }
 
+    /**
+     * this method tests the PlacedBetService's placeBet method when there is no user id in the dto
+     * @throws Exception
+     */
     @Test(expected = CustomServiceException.class)
     public void test_placeBetWithNoUserIdShouldReturnCustomServiceException() throws Exception {
         PlaceBetDTO dto = new PlaceBetDTO();
@@ -244,6 +263,10 @@ public class ApplicationTest {
         placedBetService.placeBet(dto, "jwt");
     }
 
+    /**
+     * this method tests the PlacedBetService's placeBet method when the cashable amount is 0
+     * @throws Exception
+     */
      @Test(expected = CustomServiceException.class)
      public void test_placeBetWithNoCashableAmountShouldReturnError() throws Exception {
          when(authenticationService.getUserInfo(currentSession.getUserId(), "jwt")).thenReturn(userBalance);
