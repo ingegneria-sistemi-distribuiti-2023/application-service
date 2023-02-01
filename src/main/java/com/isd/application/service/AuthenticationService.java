@@ -49,6 +49,11 @@ public class AuthenticationService {
         }
         return request.getBody();
     }
+    /**
+     * Fallback method for getUserInfo
+     * This method will be called only when the service is unavailable.
+     * ResourceAccessException make possible to distinguish between a service unavailable and a service error (like Expired JWT)
+     */
     public AuthenticationResponse getUserInfoFallback(LoginRequest loginData, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }

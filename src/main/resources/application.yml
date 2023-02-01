@@ -49,6 +49,8 @@ management:
     health:
       show-details: always # show details of health endpoint
 
+# using this configuration the wait for timeout calls is in total 40 seconds 
+#(3 retries * 10 seconds + 5 seconds for the retry aspect, that is called twice because the third time will not wait nothing)
 resilience4j:
   circuitbreaker:
     circuit-breaker-aspect-order: 1 # the order of the circuit breaker aspect, in this way it will be executed before the retry aspect
