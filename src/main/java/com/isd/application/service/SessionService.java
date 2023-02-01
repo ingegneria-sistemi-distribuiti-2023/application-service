@@ -16,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -47,7 +48,7 @@ public class SessionService {
         }
         return response.getBody();
     }
-    public UserDataDTO getCurrentUserDataFallback(Integer userId, Exception e) throws CustomServiceException {
+    public UserDataDTO getCurrentUserDataFallback(Integer userId, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -67,7 +68,7 @@ public class SessionService {
 
         return response.getBody();
     }
-    public UserDataDTO updateUserDataFallback(UserDataDTO userData, Exception e) throws CustomServiceException {
+    public UserDataDTO updateUserDataFallback(UserDataDTO userData, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 }

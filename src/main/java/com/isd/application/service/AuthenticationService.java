@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -48,7 +49,7 @@ public class AuthenticationService {
         }
         return request.getBody();
     }
-    public AuthenticationResponse getUserInfoFallback(LoginRequest loginData, Exception e) throws CustomServiceException {
+    public AuthenticationResponse getUserInfoFallback(LoginRequest loginData, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -68,7 +69,7 @@ public class AuthenticationService {
 
         return response.getBody();
     }
-    public AuthenticationResponse getJwtFallback(LoginRequest loginData, Exception e) throws CustomServiceException {
+    public AuthenticationResponse getJwtFallback(LoginRequest loginData, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -88,7 +89,7 @@ public class AuthenticationService {
 
         return response.getBody();
     }
-    public AuthenticationResponse registerFallback(UserRegistrationDTO body, Exception e) throws CustomServiceException {
+    public AuthenticationResponse registerFallback(UserRegistrationDTO body, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -111,7 +112,7 @@ public class AuthenticationService {
 
         return response.getBody();
     }
-    public Boolean validateFallback(String username, String jwt, Exception e) throws CustomServiceException {
+    public Boolean validateFallback(String username, String jwt, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -131,7 +132,7 @@ public class AuthenticationService {
 
         return transaction.getBody();
     }
-    public TransactionResponseDTO withdrawFallback(TransactionRequestDTO req, Exception e) throws CustomServiceException {
+    public TransactionResponseDTO withdrawFallback(TransactionRequestDTO req, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -151,7 +152,7 @@ public class AuthenticationService {
 
         return transaction.getBody();
     }
-    public TransactionResponseDTO depositFallback(TransactionRequestDTO req, String jwt, Exception e) throws CustomServiceException {
+    public TransactionResponseDTO depositFallback(TransactionRequestDTO req, String jwt, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 }

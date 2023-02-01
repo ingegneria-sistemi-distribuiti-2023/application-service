@@ -63,6 +63,8 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 3 # the number of calls that will be allowed in half open state
         slidingWindowSize: 10 # the number of calls that will be recorded
         slidingWindowType: COUNT_BASED # the type of the sliding window
+        recordExceptions: # the exceptions that will be recorded as a failure 
+          - org.springframework.web.client.ResourceAccessException
 
   retry:
     retry-aspect-order: 2 # the order of the retry aspect, in this way it will be executed before the circuit breaker aspect
@@ -70,3 +72,7 @@ resilience4j:
       retryService:
         maxAttempts: 3 # the number of retries
         waitDuration: 5s # the time between retries
+        retryExceptions: # the exceptions that will fire a retry
+          - org.springframework.web.client.ResourceAccessException
+        ignoreExceptions: # the exceptions that will not be recorded as a failure
+          - com.isd.application.commons.error.CustomServiceException

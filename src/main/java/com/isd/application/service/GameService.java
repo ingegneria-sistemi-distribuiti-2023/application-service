@@ -16,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class GameService {
         return matchRequest.getBody();
     }
 
-    public MatchDTO getMatchDetailFallback(Integer matchId, Exception e) throws CustomServiceException {
+    public MatchDTO getMatchDetailFallback(Integer matchId, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -65,7 +66,7 @@ public class GameService {
         return response.getBody();
     }
 
-    public List<MatchDTO> getAllMatchesFallback(Exception e) throws CustomServiceException {
+    public List<MatchDTO> getAllMatchesFallback(ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 
@@ -82,7 +83,7 @@ public class GameService {
         return response.getBody();
     }
 
-    public TeamHistoryDTO getHistoryOfTeamFallback(Integer teamId, Exception e) throws CustomServiceException {
+    public TeamHistoryDTO getHistoryOfTeamFallback(Integer teamId, ResourceAccessException e) throws CustomServiceException {
         throw new CustomServiceException(new CustomHttpResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service is unavailable"));
     }
 }
